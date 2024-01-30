@@ -42,13 +42,19 @@ test_basic_operations(void){
     assert(ll_search_by_key(ll, (void *) 3) != NULL);
     assert(ll_search_by_key(ll, (void *) 0) == NULL);
 
+    /* Remove a node in the middle of the list */
     ll_remove(ll, (void *) 3);
     assert(ll_search_by_key(ll, (void *) 3) == NULL);
     assert(ll_get_length(ll) == 4);
+    /* Remove the first node */
     ll_remove(ll, (void *) 1);
     assert(ll_get_length(ll) == 3);
+    /* Remove the last node */
     ll_remove(ll, (void *) 5);
     assert(ll_get_length(ll) == 2);
+    ll_remove(ll, (void *) 2);
+    ll_remove(ll, (void *) 4);
+    assert(ll_get_length(ll) == 0);
 
     printf("done with the basic tests...\n");
 }
