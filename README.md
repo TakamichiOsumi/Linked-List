@@ -1,2 +1,2 @@
 # Linked-List
-Minor utility repo for my other repositories
+Minor submodule utility for my other repositories
