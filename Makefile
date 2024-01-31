@@ -17,4 +17,4 @@ $(OUTPUT_LIB): linked_list.o
 .PHONY: clean
 
 clean:
-	rm -rf $(PROGRAM) $(OUTPUT_LIB)
+	rm -rf $(PROGRAM) $(OUTPUT_LIB) linked_list.o
