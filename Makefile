@@ -1,11 +1,20 @@
 CC	= gcc
 CFLAGS	= -O0 -Wall
 PROGRAM	= ll_test
+OUTPUT_LIB = liblinked_list.a
 
-$(PROGRAM):
-	gcc test_linked_list.c linked_list.c -o $@
+all: $(PROGRAM) $(OUTPUT_LIB)
+
+$(PROGRAM): linked_list.o
+	$(CC) $(CFLAGS) test_linked_list.c $^ -o $@
+
+linked_list.o:
+	$(CC) $(CFLAGS) linked_list.c
+
+$(OUTPUT_LIB): linked_list.o
+	ar rs $@ $<
 
 .PHONY: clean
 
 clean:
-	rm -rf $(PROGRAM)
+	rm -rf $(PROGRAM) $(OUTPUT_LIB)
