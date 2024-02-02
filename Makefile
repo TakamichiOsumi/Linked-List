@@ -9,7 +9,7 @@ $(PROGRAM): linked_list.o
 	$(CC) $(CFLAGS) test_linked_list.c $^ -o $@
 
 linked_list.o:
-	$(CC) $(CFLAGS) linked_list.c
+	$(CC) $(CFLAGS) linked_list.c -c
 
 $(OUTPUT_LIB): linked_list.o
 	ar rs $@ $<
