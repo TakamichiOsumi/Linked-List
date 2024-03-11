@@ -6,11 +6,25 @@
 
 #define BUF_SIZE 64
 typedef struct employee {
-    unsigned int id;
+    int id;
     char name[BUF_SIZE];
 } employee;
 
-bool
+static void
+test_employee_id(employee *e, int expected){
+    if (e == NULL){
+	fprintf(stderr, "input employee data is null. exit for failure.\n");
+	exit(-1);
+    }
+
+    if (e->id != expected){
+	fprintf(stderr, "expected the employee id to be %d, but it was %d.\n",
+		expected, e->id);
+	exit(-1);
+    }
+}
+
+static bool
 employee_key_match(void *data, void *key){
     employee *e = (employee *) data; /* 'data' was (void *) &employee. */
 
@@ -19,9 +33,12 @@ employee_key_match(void *data, void *key){
     else
 	return false;
 }
-    
 
-void
+/* Do nothing, since there is no dynamic member in employee */
+static void
+employee_free(void *data){}
+
+static void
 test_basic_operations(void){
     employee e1 = { 1, "foo" },
 	e2 = { 2, "bar" },
@@ -30,7 +47,7 @@ test_basic_operations(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_match);
+    ll = ll_init(employee_key_match, employee_free);
 
     assert(ll_is_empty(ll));
     ll_insert(ll, (void *) &e1);
@@ -57,7 +74,38 @@ test_basic_operations(void){
     ll_remove(ll, (void *) 4);
     assert(ll_get_length(ll) == 0);
 
+    ll_destroy(ll);
+
     printf("done with the basic tests...\n");
+}
+
+static void
+test_get_first_operation(void){
+    employee e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxx" },
+	e5 = { 5, "yyy" };
+    linked_list *ll;
+
+    ll = ll_init(employee_key_match, employee_free);
+
+    assert(ll_is_empty(ll));
+    ll_insert(ll, (void *) &e1);
+    ll_insert(ll, (void *) &e2);
+    ll_insert(ll, (void *) &e3);
+    ll_insert(ll, (void *) &e4);
+    ll_insert(ll, (void *) &e5);
+
+    test_employee_id((employee *) ll_get_first_node(ll)->data, 5);
+    test_employee_id((employee *) ll_get_first_node(ll)->data, 4);
+    test_employee_id((employee *) ll_get_first_node(ll)->data, 3);
+    test_employee_id((employee *) ll_get_first_node(ll)->data, 2);
+    test_employee_id((employee *) ll_get_first_node(ll)->data, 1);
+
+    printf("done with the tests to get first node...\n");
+
+    ll_destroy(ll);
 }
 
 int
@@ -65,6 +113,9 @@ main(void){
 
     printf("<test basic operations>\n");
     test_basic_operations();
+
+    printf("<test get first operation>\n");
+    test_get_first_operation();
 
     return 0;
 }

@@ -14,7 +14,10 @@ linked_list.o:
 $(OUTPUT_LIB): linked_list.o
 	ar rs $@ $<
 
-.PHONY: clean
+.PHONY: clean test
 
 clean:
 	rm -rf $(PROGRAM) $(OUTPUT_LIB) linked_list.o
+
+test: $(PROGRAM)
+	@./$(PROGRAM) &> /dev/null && echo "Success if value is zero >>> $$?"

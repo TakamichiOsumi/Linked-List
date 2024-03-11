@@ -21,7 +21,8 @@ ll_gen_node(void *p){
 }
 
 linked_list *
-ll_init(bool (*key_compare_cb)(void *p, void *key)){
+ll_init(bool (*key_compare_cb)(void *p, void *key),
+	void (*free_cb)(void *data)){
     linked_list *new_ll;
 
     if ((new_ll = (linked_list *) malloc(sizeof(linked_list))) == NULL){
@@ -67,6 +68,25 @@ ll_insert(linked_list *ll, void *data){
 
     new_node->next = ll->head;
     ll->head = new_node;
+}
+
+node *
+ll_get_first_node(linked_list *ll){
+    node *n = NULL;
+
+    if (!ll || !ll->head)
+	return NULL;
+
+    /* There is only one node */
+    if (ll->head->next == NULL){
+	return ll->head;
+    }else{
+	/* Reconnect node */
+	n = ll->head;
+	ll->head = ll->head->next;
+    }
+
+    return n;
 }
 
 node *
@@ -125,6 +145,32 @@ ll_remove(linked_list *ll, void *key){
 }
 
 void
-ll_remove_all(linked_list **ll){
-    /* todo */
+ll_remove_all(linked_list *ll){
+    node *n;
+
+    while(true){
+	n = ll_get_first_node(ll);
+
+	if (!n){
+	    /* we are done */
+	    break;
+	}else{
+	    /* found a node */
+	    if (ll->free_cb){
+		ll->free_cb(n);
+	    }
+	    n->data = NULL;
+	    n->next = NULL;
+	    free(n);
+	}
+    }
+}
+
+
+void
+ll_destroy(linked_list *ll){
+    if (!ll || !ll->head){
+	ll_remove_all(ll);
+    }
+    free(ll);
 }
