@@ -108,14 +108,52 @@ test_get_first_operation(void){
     ll_destroy(ll);
 }
 
+static void
+test_clean_up_operation(void){
+    employee e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxx" },
+	e5 = { 5, "yyy" };
+    linked_list *ll;
+
+    ll = ll_init(employee_key_match, employee_free);
+
+    assert(ll_is_empty(ll));
+
+    ll_insert(ll, (void *) &e1);
+    ll_insert(ll, (void *) &e2);
+    ll_insert(ll, (void *) &e3);
+    ll_insert(ll, (void *) &e4);
+    ll_insert(ll, (void *) &e5);
+
+    if (ll_get_length(ll) != 5){
+	fprintf(stderr, "test to insert nodes has failed\n");
+	exit(-1);
+    }
+
+    ll_remove_all(ll);
+
+    if (ll_get_length(ll) != 0){
+	fprintf(stderr, "test to remove all nodes has failed\n");
+	exit(-1);
+    }
+
+    printf("done with the tests to remove nodes...\n");
+}
+
+
 int
 main(void){
 
     printf("<test basic operations>\n");
     test_basic_operations();
 
-    printf("<test get first operation>\n");
+    printf("<test operation to get first node>\n");
     test_get_first_operation();
+
+    printf("<test clean-up operation>\n");
+    test_clean_up_operation();
 
     return 0;
 }

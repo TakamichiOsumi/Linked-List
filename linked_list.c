@@ -74,16 +74,13 @@ node *
 ll_get_first_node(linked_list *ll){
     node *n = NULL;
 
-    if (!ll || !ll->head)
+    if (ll == NULL)
 	return NULL;
 
-    /* There is only one node */
-    if (ll->head->next == NULL){
-	return ll->head;
-    }else{
-	/* Reconnect node */
+    if (ll->head != NULL){
 	n = ll->head;
 	ll->head = ll->head->next;
+	ll->node_count--;
     }
 
     return n;
@@ -166,11 +163,14 @@ ll_remove_all(linked_list *ll){
     }
 }
 
-
 void
 ll_destroy(linked_list *ll){
-    if (!ll || !ll->head){
-	ll_remove_all(ll);
-    }
+    if (ll == NULL || ll->head == NULL)
+	return;
+
+    ll_remove_all(ll);
+
+    assert(ll_get_length(ll) == 0);
+
     free(ll);
 }
