@@ -39,6 +39,14 @@ static void
 employee_free(void *data){}
 
 static void
+employee_print(void *data){
+    employee *e = (employee *) data;
+
+    printf("id = %d, name = %s\n",
+	   e->id, e->name);
+}
+
+static void
 test_basic_operations(void){
     employee e1 = { 1, "foo" },
 	e2 = { 2, "bar" },
@@ -47,7 +55,7 @@ test_basic_operations(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_match, employee_free);
+    ll = ll_init(employee_key_match, employee_free, employee_print);
 
     assert(ll_is_empty(ll));
     ll_insert(ll, (void *) &e1);
@@ -88,7 +96,7 @@ test_get_first_operation(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_match, employee_free);
+    ll = ll_init(employee_key_match, employee_free, employee_print);
 
     assert(ll_is_empty(ll));
     ll_insert(ll, (void *) &e1);
@@ -117,7 +125,7 @@ test_clean_up_operation(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_match, employee_free);
+    ll = ll_init(employee_key_match, employee_free, employee_print);
 
     assert(ll_is_empty(ll));
 
@@ -142,6 +150,24 @@ test_clean_up_operation(void){
     printf("done with the tests to remove nodes...\n");
 }
 
+static void
+test_print_list_operation(void){
+    employee e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" };
+    linked_list *ll;
+
+    ll = ll_init(employee_key_match, employee_free, employee_print);
+
+    assert(ll_is_empty(ll));
+
+    ll_insert(ll, (void *) &e1);
+    ll_insert(ll, (void *) &e2);
+    ll_insert(ll, (void *) &e3);
+
+    ll_print_all(ll);
+}
+
 
 int
 main(void){
@@ -154,6 +180,9 @@ main(void){
 
     printf("<test clean-up operation>\n");
     test_clean_up_operation();
+
+    printf("<test print list operation>\n");
+    test_print_list_operation();
 
     return 0;
 }
