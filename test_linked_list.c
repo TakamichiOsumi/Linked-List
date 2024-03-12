@@ -168,6 +168,58 @@ test_print_list_operation(void){
     ll_print_all(ll);
 }
 
+void
+test_iteration_operation(void){
+    employee *iter,
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" };
+    linked_list *ll;
+    node *n;
+
+    ll = ll_init(employee_key_match, employee_free, employee_print);
+
+    /* Test 1 : executing begin/end functions without any operation */
+    ll_begin_iter(ll);
+    ll_end_iter(ll);
+
+    /* Test 2 : executing ll_get_iter_node without any data */
+    ll_begin_iter(ll);
+    if (ll_get_iter_node(ll) != NULL){
+	fprintf(stderr, "invalid node has been returned\n");
+	exit(-1);
+    }
+    ll_end_iter(ll);
+
+    /* Test 3 : executing ll_get_iter_node for one data */
+    ll_insert(ll, (void *) &e1);
+    ll_begin_iter(ll);
+    if ((n = ll_get_iter_node(ll)) == NULL){
+	fprintf(stderr, "inserted node has not been returned\n");
+	exit(-1);
+    }
+    if ((n = ll_get_iter_node(ll)) != NULL){
+	fprintf(stderr, "non-existent node has been returned\n");
+	exit(-1);
+    }
+    ll_end_iter(ll);
+
+    /* Test 4 : executing ll_get_iter_node for multiple nodes */
+    ll_insert(ll, (void *) &e2);
+    ll_insert(ll, (void *) &e3);
+
+    printf("Dump three nodes\n");
+    ll_begin_iter(ll);
+    while((n = ll_get_iter_node(ll)) != NULL){
+	iter = (employee *) n->data;
+	employee_print(iter);
+    }
+    ll_end_iter(ll);
+
+    ll_destroy(ll);
+
+    printf("done with the tests to iterate nodes...\n");
+}
 
 int
 main(void){
@@ -183,6 +235,9 @@ main(void){
 
     printf("<test print list operation>\n");
     test_print_list_operation();
+
+    printf("<test iteration operation>\n");
+    test_iteration_operation();
 
     return 0;
 }

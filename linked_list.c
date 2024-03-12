@@ -37,6 +37,10 @@ ll_init(bool (*key_compare_cb)(void *p, void *key),
     new_ll->free_cb = free_cb;
     new_ll->print_cb = print_cb;
 
+    new_ll->current_node = NULL;
+    new_ll->iter_in_progress = false;
+    new_ll->iter_index = 0;
+
     return new_ll;
 }
 
@@ -175,6 +179,47 @@ ll_print_all(linked_list *ll){
 	ll->print_cb(n->data);
 	n = n->next;
     }
+}
+
+void
+ll_begin_iter(linked_list *ll){
+    assert(ll->iter_index == 0);
+    assert(ll->iter_in_progress == false);
+    assert(ll->current_node == NULL);
+
+    ll->iter_in_progress = true;
+    /* Set the node which will be referenced next */
+    ll->current_node = ll->head;
+}
+
+node *
+ll_get_iter_node(linked_list *ll){
+    node *n;
+
+    assert(ll->iter_in_progress == true);
+
+    ll->iter_index++;
+    n = ll->current_node;
+
+    /* If the next node is null, then return null */
+    if (n == NULL)
+	return NULL;
+    else{
+	/* Shift the node to the next one for the next call */
+	n = ll->current_node;
+	ll->current_node = ll->current_node->next;
+	return n;
+    }
+}
+
+void
+ll_end_iter(linked_list *ll){
+    assert(ll->iter_in_progress == true);
+    assert(ll->current_node == NULL);
+
+    ll->iter_index = 0;
+    ll->iter_in_progress = false;
+    ll->current_node = NULL;
 }
 
 void
