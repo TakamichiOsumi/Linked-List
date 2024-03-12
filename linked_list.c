@@ -22,8 +22,7 @@ ll_gen_node(void *p){
 
 linked_list *
 ll_init(bool (*key_compare_cb)(void *p, void *key),
-	void (*free_cb)(void *data),
-	void (*print_cb)(void *data)){
+	void (*free_cb)(void *data)){
     linked_list *new_ll;
 
     if ((new_ll = (linked_list *) malloc(sizeof(linked_list))) == NULL){
@@ -35,7 +34,6 @@ ll_init(bool (*key_compare_cb)(void *p, void *key),
     new_ll->head = NULL;
     new_ll->key_compare_cb = key_compare_cb;
     new_ll->free_cb = free_cb;
-    new_ll->print_cb = print_cb;
 
     new_ll->current_node = NULL;
     new_ll->iter_in_progress = false;
@@ -167,17 +165,6 @@ ll_remove_all(linked_list *ll){
 	    n->next = NULL;
 	    free(n);
 	}
-    }
-}
-
-void
-ll_print_all(linked_list *ll){
-    node *n;
-
-    n = ll->head;
-    while(n){
-	ll->print_cb(n->data);
-	n = n->next;
     }
 }
 
