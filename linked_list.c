@@ -202,7 +202,6 @@ ll_get_iter_node(linked_list *ll){
 void
 ll_end_iter(linked_list *ll){
     assert(ll->iter_in_progress == true);
-    assert(ll->current_node == NULL);
 
     ll->iter_index = 0;
     ll->iter_in_progress = false;
