@@ -198,6 +198,18 @@ test_iteration_operation(void){
     }
     ll_end_iter(ll);
 
+    /* Test 5 : break in the middle of iteration and close the iteration */
+    printf("Break in the middle of iteration\n");
+    ll_begin_iter(ll);
+    while((n = ll_get_iter_node(ll)) != NULL){
+	iter = (employee *) n->data;
+	employee_print(iter);
+	if (iter->id == 2){
+	    break;
+	}
+    }
+    ll_end_iter(ll);
+
     ll_destroy(ll);
 
     printf("done with the tests to iterate nodes...\n");
