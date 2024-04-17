@@ -75,6 +75,31 @@ ll_insert(linked_list *ll, void *data){
     ll->head = new_node;
 }
 
+void
+ll_tail_insert(linked_list *ll, void *data){
+    node *new_node;
+
+    if (!ll)
+	return;
+
+    new_node = ll_gen_node(data);
+    ll->node_count++;
+
+    if (!ll->head){
+	ll->head = new_node;
+	return;
+    }else{
+	node *curr, *prev;
+
+	prev = curr = ll->head;
+	while(curr != NULL){
+	    prev = curr;
+	    curr = curr->next;
+	}
+	prev->next = new_node;
+    }
+}
+
 node *
 ll_get_first_node(linked_list *ll){
     node *n = NULL;

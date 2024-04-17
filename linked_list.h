@@ -31,6 +31,7 @@ unsigned int ll_get_length(linked_list *ll);
 
 /* basic operations (insert, delete, search ... etc) */
 void ll_insert(linked_list *ll, void *p);
+void ll_tail_insert(linked_list *ll, void *p);
 node *ll_get_first_node(linked_list *ll);
 node *ll_search_by_key(linked_list *ll, void *key);
 node *ll_remove(linked_list *ll, void *key);

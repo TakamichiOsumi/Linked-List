@@ -215,6 +215,35 @@ test_iteration_operation(void){
     printf("done with the tests to iterate nodes...\n");
 }
 
+void
+test_tail_insert(void){
+    linked_list *ll;
+    node *n;
+    employee *iter,
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" },
+	e5 = { 5, "yyyy" };
+    int expected_val = 1;
+
+    ll = ll_init(employee_key_match, employee_free);
+    ll_tail_insert(ll, (void *) &e1);
+    ll_tail_insert(ll, (void *) &e2);
+    ll_tail_insert(ll, (void *) &e3);
+    ll_tail_insert(ll, (void *) &e4);
+    ll_tail_insert(ll, (void *) &e5);
+
+    ll_begin_iter(ll);
+    while((n = ll_get_iter_node(ll)) == NULL){
+	iter = (employee *) n->data;
+	assert(iter->id == expected_val);
+	expected_val++;
+    }
+    ll_end_iter(ll);
+    ll_destroy(ll);
+}
+
 int
 main(void){
 
@@ -229,6 +258,9 @@ main(void){
 
     printf("<test iteration operation>\n");
     test_iteration_operation();
+
+    printf("<test tail insert>\n");
+    test_tail_insert();
 
     return 0;
 }
