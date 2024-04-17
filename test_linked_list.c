@@ -234,6 +234,7 @@ test_tail_insert(void){
     ll_tail_insert(ll, (void *) &e4);
     ll_tail_insert(ll, (void *) &e5);
 
+    assert(ll_get_length(ll) == 5);
     ll_begin_iter(ll);
     while((n = ll_get_iter_node(ll)) == NULL){
 	iter = (employee *) n->data;
@@ -261,6 +262,8 @@ main(void){
 
     printf("<test tail insert>\n");
     test_tail_insert();
+
+    printf("All tests are done gracefully\n");
 
     return 0;
 }
