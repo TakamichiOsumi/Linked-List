@@ -100,23 +100,30 @@ ll_tail_insert(linked_list *ll, void *data){
     }
 }
 
-node *
+void *
 ll_get_first_node(linked_list *ll){
-    node *n = NULL;
-
-    if (ll == NULL)
+    if (ll == NULL || ll->head == NULL)
 	return NULL;
+    else{
+	node *n;
+	void *p;
 
-    if (ll->head != NULL){
 	n = ll->head;
 	ll->head = ll->head->next;
 	ll->node_count--;
-    }
 
-    return n;
+	/* clean up */
+	p = n->data;
+	n->next = NULL;
+	n->data = NULL;
+	free(n);
+
+	return p;
+    }
 }
 
-node *
+/* Don't remove the hit node from the list */
+void*
 ll_search_by_key(linked_list *ll, void *key){
     node *n;
 
@@ -126,7 +133,7 @@ ll_search_by_key(linked_list *ll, void *key){
     n = ll->head;
     while(n){
 	if (ll->key_compare_cb(n->data, key)){
-	    return n;
+	    return n->data;
 	}
 	n = n->next;
     }
@@ -134,10 +141,11 @@ ll_search_by_key(linked_list *ll, void *key){
     return NULL;
 }
 
-node *
+void *
 ll_remove(linked_list *ll, void *key){
     bool found = false;
     node *prev, *cur;
+    void *p;
 
     if (!ll || !key || !ll->head || !ll->key_compare_cb)
 	return NULL;
@@ -157,38 +165,41 @@ ll_remove(linked_list *ll, void *key){
 
     if (ll->head == cur){
 	/* the first node */
-	ll->head = cur->next == NULL ? NULL : cur->next;
+	ll->head = cur->next;
+	cur->next = NULL;
+	p = cur->data;
     }else if (cur->next == NULL){
 	/* the last node */
 	assert(prev != NULL);
 	prev->next = NULL;
+	p = cur->data;
     }else{
 	/* a node in the middle of other nodes */
 	prev->next = cur->next;
+	cur->next = NULL;
+	p = cur->data;
     }
 
     ll->node_count--;
-    return cur;
+    free(cur);
+
+    return p;
 }
 
 void
 ll_remove_all(linked_list *ll){
-    node *n;
+    void *p;
 
     while(true){
-	n = ll_get_first_node(ll);
+	p = ll_get_first_node(ll);
 
-	if (!n){
-	    /* we are done */
+	/* are we done ? */
+	if (!p)
 	    break;
-	}else{
-	    /* found a node */
-	    if (ll->free_cb){
-		ll->free_cb(n);
-	    }
-	    n->data = NULL;
-	    n->next = NULL;
-	    free(n);
+
+	/* found a node */
+	if (ll->free_cb){
+	    ll->free_cb(p);
 	}
     }
 }
@@ -204,7 +215,7 @@ ll_begin_iter(linked_list *ll){
     ll->current_node = ll->head;
 }
 
-node *
+void *
 ll_get_iter_node(linked_list *ll){
     node *n;
 
@@ -220,7 +231,7 @@ ll_get_iter_node(linked_list *ll){
 	/* Shift the node to the next one for the next call */
 	n = ll->current_node;
 	ll->current_node = ll->current_node->next;
-	return n;
+	return n->data;
     }
 }
 

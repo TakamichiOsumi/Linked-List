@@ -105,11 +105,11 @@ test_get_first_operation(void){
     ll_insert(ll, (void *) &e4);
     ll_insert(ll, (void *) &e5);
 
-    test_employee_id((employee *) ll_get_first_node(ll)->data, 5);
-    test_employee_id((employee *) ll_get_first_node(ll)->data, 4);
-    test_employee_id((employee *) ll_get_first_node(ll)->data, 3);
-    test_employee_id((employee *) ll_get_first_node(ll)->data, 2);
-    test_employee_id((employee *) ll_get_first_node(ll)->data, 1);
+    test_employee_id((employee *) ll_get_first_node(ll), 5);
+    test_employee_id((employee *) ll_get_first_node(ll), 4);
+    test_employee_id((employee *) ll_get_first_node(ll), 3);
+    test_employee_id((employee *) ll_get_first_node(ll), 2);
+    test_employee_id((employee *) ll_get_first_node(ll), 1);
 
     printf("done with the tests to get first node...\n");
 
@@ -157,7 +157,6 @@ test_iteration_operation(void){
 	e2 = { 2, "bar" },
 	e3 = { 3, "bazz" };
     linked_list *ll;
-    node *n;
 
     ll = ll_init(employee_key_match, employee_free);
 
@@ -176,11 +175,11 @@ test_iteration_operation(void){
     /* Test 3 : executing ll_get_iter_node for one data */
     ll_insert(ll, (void *) &e1);
     ll_begin_iter(ll);
-    if ((n = ll_get_iter_node(ll)) == NULL){
+    if ((iter = ll_get_iter_node(ll)) == NULL){
 	fprintf(stderr, "inserted node has not been returned\n");
 	exit(-1);
     }
-    if ((n = ll_get_iter_node(ll)) != NULL){
+    if ((iter = ll_get_iter_node(ll)) != NULL){
 	fprintf(stderr, "non-existent node has been returned\n");
 	exit(-1);
     }
@@ -192,8 +191,7 @@ test_iteration_operation(void){
 
     printf("Dump three nodes\n");
     ll_begin_iter(ll);
-    while((n = ll_get_iter_node(ll)) != NULL){
-	iter = (employee *) n->data;
+    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
 	employee_print(iter);
     }
     ll_end_iter(ll);
@@ -201,8 +199,7 @@ test_iteration_operation(void){
     /* Test 5 : break in the middle of iteration and close the iteration */
     printf("Break in the middle of iteration\n");
     ll_begin_iter(ll);
-    while((n = ll_get_iter_node(ll)) != NULL){
-	iter = (employee *) n->data;
+    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
 	employee_print(iter);
 	if (iter->id == 2){
 	    break;
@@ -218,7 +215,6 @@ test_iteration_operation(void){
 void
 test_tail_insert(void){
     linked_list *ll;
-    node *n;
     employee *iter,
 	e1 = { 1, "foo" },
 	e2 = { 2, "bar" },
@@ -236,8 +232,7 @@ test_tail_insert(void){
 
     assert(ll_get_length(ll) == 5);
     ll_begin_iter(ll);
-    while((n = ll_get_iter_node(ll)) == NULL){
-	iter = (employee *) n->data;
+    while((iter = (employee *) ll_get_iter_node(ll)) == NULL){
 	assert(iter->id == expected_val);
 	expected_val++;
     }

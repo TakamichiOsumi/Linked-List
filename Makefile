@@ -1,5 +1,5 @@
 CC	= gcc
-CFLAGS	= -O0 -Wall
+CFLAGS	= -O0 -Wall -g
 PROGRAM	= ll_test
 OUTPUT_LIB = liblinked_list.a
 

@@ -32,14 +32,14 @@ unsigned int ll_get_length(linked_list *ll);
 /* basic operations (insert, delete, search ... etc) */
 void ll_insert(linked_list *ll, void *p);
 void ll_tail_insert(linked_list *ll, void *p);
-node *ll_get_first_node(linked_list *ll);
-node *ll_search_by_key(linked_list *ll, void *key);
-node *ll_remove(linked_list *ll, void *key);
+void *ll_get_first_node(linked_list *ll);
+void *ll_search_by_key(linked_list *ll, void *key);
+void *ll_remove(linked_list *ll, void *key);
 void ll_remove_all(linked_list *ll);
 
 /* iteration feature */
 void ll_begin_iter(linked_list *ll);
-node *ll_get_iter_node(linked_list *ll);
+void *ll_get_iter_node(linked_list *ll);
 void ll_end_iter(linked_list *ll);
 
 void ll_destroy(linked_list *ll);
