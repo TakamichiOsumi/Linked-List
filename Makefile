@@ -17,7 +17,7 @@ $(OUTPUT_LIB): linked_list.o
 .PHONY: clean test
 
 clean:
-	rm -rf $(PROGRAM) $(OUTPUT_LIB) linked_list.o
+	@rm -rf $(PROGRAM) $(PROGRAM).dSYM $(OUTPUT_LIB) linked_list.o
 
 test: $(PROGRAM)
-	@./$(PROGRAM) &> /dev/null && echo "Success if value is zero >>> $$?"
+	@./$(PROGRAM) &> /dev/null && echo "Success when value is zero >>> $$?"
