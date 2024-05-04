@@ -6,7 +6,7 @@
 
 #define BUF_SIZE 64
 typedef struct employee {
-    int id;
+    uintptr_t id;
     char name[BUF_SIZE];
 } employee;
 
@@ -19,19 +19,33 @@ test_employee_id(employee *e, int expected){
 
     if (e->id != expected){
 	fprintf(stderr, "expected the employee id to be %d, but it was %d.\n",
-		expected, e->id);
+		(int) expected, (int) e->id);
 	exit(-1);
     }
 }
 
-static bool
-employee_key_match(void *data, void *key){
-    employee *e = (employee *) data; /* 'data' was (void *) &employee. */
+static void*
+employee_key_access(void *data){
+    employee *e;
 
-    if (e->id == (uintptr_t) key)
-	return true;
-    else
-	return false;
+    assert(data != NULL);
+    e = (employee *) data;
+
+    return (void *) e->id;
+}
+
+static int
+employee_key_match(void *key1, void *key2){
+    uintptr_t k1 = (uintptr_t) key1,
+	k2 = (uintptr_t) key2;
+
+    if (k1 < k2){
+	return -1;
+    }else if (k1 == k2){
+	return 0;
+    }else{
+	return 1;
+    }
 }
 
 /* Do nothing, since there is no dynamic member in employee */
@@ -43,7 +57,7 @@ employee_print(void *data){
     employee *e = (employee *) data;
 
     printf("id = %d, name = %s\n",
-	   e->id, e->name);
+	   (int) e->id, e->name);
 }
 
 static void
@@ -55,7 +69,8 @@ test_basic_operations(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_match, employee_free);
+    ll = ll_init(employee_key_access, employee_key_match,
+		 employee_free);
 
     assert(ll_is_empty(ll));
     ll_insert(ll, (void *) &e1);
@@ -69,17 +84,17 @@ test_basic_operations(void){
     assert(ll_search_by_key(ll, (void *) 0) == NULL);
 
     /* Remove a node in the middle of the list */
-    ll_remove(ll, (void *) 3);
+    ll_remove_by_key(ll, (void *) 3);
     assert(ll_search_by_key(ll, (void *) 3) == NULL);
     assert(ll_get_length(ll) == 4);
     /* Remove the first node */
-    ll_remove(ll, (void *) 1);
+    ll_remove_by_key(ll, (void *) 1);
     assert(ll_get_length(ll) == 3);
     /* Remove the last node */
-    ll_remove(ll, (void *) 5);
+    ll_remove_by_key(ll, (void *) 5);
     assert(ll_get_length(ll) == 2);
-    ll_remove(ll, (void *) 2);
-    ll_remove(ll, (void *) 4);
+    ll_remove_by_key(ll, (void *) 2);
+    ll_remove_by_key(ll, (void *) 4);
     assert(ll_get_length(ll) == 0);
 
     ll_destroy(ll);
@@ -96,7 +111,8 @@ test_get_first_operation(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_match, employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match, employee_free);
 
     assert(ll_is_empty(ll));
     ll_insert(ll, (void *) &e1);
@@ -125,7 +141,8 @@ test_clean_up_operation(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_match, employee_free);
+    ll = ll_init(employee_key_access, employee_key_match,
+		 employee_free);
 
     assert(ll_is_empty(ll));
 
@@ -150,7 +167,7 @@ test_clean_up_operation(void){
     printf("done with the tests to remove nodes...\n");
 }
 
-void
+static void
 test_iteration_operation(void){
     employee *iter,
 	e1 = { 1, "foo" },
@@ -158,7 +175,8 @@ test_iteration_operation(void){
 	e3 = { 3, "bazz" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_match, employee_free);
+    ll = ll_init(employee_key_access, employee_key_match,
+		 employee_free);
 
     /* Test 1 : executing begin/end functions without any operation */
     ll_begin_iter(ll);
@@ -212,7 +230,7 @@ test_iteration_operation(void){
     printf("done with the tests to iterate nodes...\n");
 }
 
-void
+static void
 test_tail_insert(void){
     linked_list *ll;
     employee *iter,
@@ -221,9 +239,11 @@ test_tail_insert(void){
 	e3 = { 3, "bazz" },
 	e4 = { 4, "xxxx" },
 	e5 = { 5, "yyyy" };
+
     int expected_val = 1;
 
-    ll = ll_init(employee_key_match, employee_free);
+    ll = ll_init(employee_key_access, employee_key_match,
+		 employee_free);
     ll_tail_insert(ll, (void *) &e1);
     ll_tail_insert(ll, (void *) &e2);
     ll_tail_insert(ll, (void *) &e3);
@@ -237,6 +257,39 @@ test_tail_insert(void){
 	expected_val++;
     }
     ll_end_iter(ll);
+    ll_destroy(ll);
+}
+
+static void
+test_asc_order_insert(void){
+    linked_list *ll;
+    employee *iter,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" },
+	e5 = { 5, "yyyy" };
+
+    ll = ll_init(employee_key_access, employee_key_match,
+		 employee_free);
+
+    ll_asc_insert(ll, (void *) &e2);
+    ll_asc_insert(ll, (void *) &e1);
+    ll_asc_insert(ll, (void *) &e0);
+    ll_asc_insert(ll, (void *) &e4);
+    ll_asc_insert(ll, (void *) &e5);
+    ll_asc_insert(ll, (void *) &e3);
+    assert(ll_get_length(ll) == 6);
+
+    ll_begin_iter(ll);
+    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+	employee_print(iter);
+    }
+    ll_end_iter(ll);
+
+    ll_remove_all(ll);
+
     ll_destroy(ll);
 }
 
@@ -257,6 +310,9 @@ main(void){
 
     printf("<test tail insert>\n");
     test_tail_insert();
+
+    printf("<test ascending order insert>\n");
+    test_asc_order_insert();
 
     printf("All tests are done gracefully\n");
 

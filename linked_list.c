@@ -21,7 +21,8 @@ ll_gen_node(void *p){
 }
 
 linked_list *
-ll_init(bool (*key_compare_cb)(void *p, void *key),
+ll_init(void *(*key_access_cb)(void *data),
+	int (*key_compare_cb)(void *data, void *key),
 	void (*free_cb)(void *data)){
     linked_list *new_ll;
 
@@ -32,6 +33,7 @@ ll_init(bool (*key_compare_cb)(void *p, void *key),
 
     new_ll->node_count = 0;
     new_ll->head = NULL;
+    new_ll->key_access_cb = key_access_cb;
     new_ll->key_compare_cb = key_compare_cb;
     new_ll->free_cb = free_cb;
 
@@ -127,12 +129,14 @@ void*
 ll_search_by_key(linked_list *ll, void *key){
     node *n;
 
-    if (!ll || !ll->head || !key)
+    if (!ll || !ll->head || !key ||
+	!ll->key_access_cb || !ll->key_compare_cb)
 	return NULL;
 
     n = ll->head;
     while(n){
-	if (ll->key_compare_cb(n->data, key)){
+	if (ll->key_compare_cb(ll->key_access_cb(n->data),
+			       key) == 0){
 	    return n->data;
 	}
 	n = n->next;
@@ -142,17 +146,19 @@ ll_search_by_key(linked_list *ll, void *key){
 }
 
 void *
-ll_remove(linked_list *ll, void *key){
+ll_remove_by_key(linked_list *ll, void *key){
     bool found = false;
     node *prev, *cur;
     void *p;
 
-    if (!ll || !key || !ll->head || !ll->key_compare_cb)
+    if (!ll || !key || !ll->head ||
+	!ll->key_access_cb || !ll->key_compare_cb)
 	return NULL;
 
     prev = cur = ll->head;
     while(cur){
-	if (ll->key_compare_cb(cur->data, key)){
+	if (ll->key_compare_cb(ll->key_access_cb(cur->data),
+			       key) == 0){
 	    found = true;
 	    break;
 	}
@@ -224,12 +230,11 @@ ll_get_iter_node(linked_list *ll){
     ll->iter_index++;
     n = ll->current_node;
 
-    /* If the next node is null, then return null */
+    /* If the current node is null, then return null */
     if (n == NULL)
 	return NULL;
     else{
 	/* Shift the node to the next one for the next call */
-	n = ll->current_node;
 	ll->current_node = ll->current_node->next;
 	return n->data;
     }
@@ -246,12 +251,70 @@ ll_end_iter(linked_list *ll){
 
 void
 ll_destroy(linked_list *ll){
-    if (ll == NULL || ll->head == NULL)
+    if (ll == NULL || ll->head == NULL){
+	free(ll);
 	return;
+    }
 
     ll_remove_all(ll);
 
     assert(ll_get_length(ll) == 0);
 
     free(ll);
+}
+
+void
+ll_asc_insert(linked_list *ll, void *new_data){
+    node *new_node, *prev, *curr;
+    bool found_smaller_key = false;
+
+    if (!ll)
+	return;
+
+    new_node = ll_gen_node(new_data);
+
+    /* If there is no node, just insert. */
+    if (!ll->head){
+	ll->node_count++;
+	ll->head = new_node;
+	return;
+    }
+
+    prev = curr = ll->head;
+    do {
+	if (ll->key_compare_cb(ll->key_access_cb(curr->data),
+			       ll->key_access_cb(new_data)) == 1){
+	    found_smaller_key = true;
+	    break;
+	}
+	prev = curr;
+    } while((curr = curr->next) != NULL);
+
+    if (found_smaller_key == true){
+	assert(prev != NULL);
+	assert(curr != NULL);
+	ll->node_count++;
+	if (prev == ll->head){
+	    /*
+	     * If the smaller key is the first node,
+	     * then need to reconnect the list's head
+	     * as well.
+	     */
+	    ll->head = new_node;
+	    new_node->next = curr;
+	}else{
+	    /*
+	     * Insert before the smaller key. In other
+	     * words, reconnect nodes in the order of
+	     * 'prev', 'new_node' and 'curr'.
+	     */
+	    new_node->next = curr;
+	    prev->next = new_node;
+	}
+    }else{
+	/* Insert at the end */
+	assert(curr == NULL);
+	ll->node_count++;
+	prev->next = new_node;
+    }
 }
