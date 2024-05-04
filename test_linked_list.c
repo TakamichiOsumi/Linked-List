@@ -270,6 +270,7 @@ test_asc_order_insert(void){
 	e3 = { 3, "bazz" },
 	e4 = { 4, "xxxx" },
 	e5 = { 5, "yyyy" };
+    uintptr_t expected_id = 0;
 
     ll = ll_init(employee_key_access, employee_key_match,
 		 employee_free);
@@ -284,7 +285,8 @@ test_asc_order_insert(void){
 
     ll_begin_iter(ll);
     while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
-	employee_print(iter);
+	assert(iter->id == expected_id);
+	expected_id++;
     }
     ll_end_iter(ll);
 
