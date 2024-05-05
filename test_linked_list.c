@@ -295,6 +295,74 @@ test_asc_order_insert(void){
     ll_destroy(ll);
 }
 
+static void
+test_merge_lists(void){
+    linked_list *ll1, *ll2, *merged1, *merged2;
+    employee *iter,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" },
+	e5 = { 5, "yyyy" },
+	e6 = { 6, "zzzz" },
+	e7 = { 7, "xyz"  },
+	e8 = { 8, "xyzz" };
+    uintptr_t expected_id = 0;
+
+    ll1 = ll_init(employee_key_access, employee_key_match,
+		  employee_free);
+    ll2 = ll_init(employee_key_access, employee_key_match,
+		  employee_free);
+
+    ll_asc_insert(ll1, (void *) &e0);
+    ll_asc_insert(ll1, (void *) &e1);
+    ll_asc_insert(ll1, (void *) &e2);
+    ll_asc_insert(ll2, (void *) &e3);
+    ll_asc_insert(ll2, (void *) &e4);
+    ll_asc_insert(ll2, (void *) &e5);
+    ll_asc_insert(ll1, (void *) &e6);
+    ll_asc_insert(ll2, (void *) &e7);
+    ll_asc_insert(ll2, (void *) &e8);
+
+    /*
+     * ll1 : 0, 1, 2, 6
+     * ll2 : 3, 4, 5, 7, 8
+     */
+    merged1 = ll_merge(ll1, ll2);
+    ll_begin_iter(merged1);
+    while((iter = (employee *) ll_get_first_node(merged1)) != NULL){
+	employee_print(iter);
+	assert(expected_id == iter->id);
+	expected_id++;
+    }
+    ll_end_iter(merged1);
+    ll_destroy(merged1);
+
+    /* Test by swapping two lists */
+    ll_asc_insert(ll1, (void *) &e0);
+    ll_asc_insert(ll1, (void *) &e1);
+    ll_asc_insert(ll1, (void *) &e2);
+    ll_asc_insert(ll2, (void *) &e3);
+    ll_asc_insert(ll2, (void *) &e4);
+    ll_asc_insert(ll2, (void *) &e5);
+    ll_asc_insert(ll1, (void *) &e6);
+    ll_asc_insert(ll2, (void *) &e7);
+    ll_asc_insert(ll2, (void *) &e8);
+    expected_id = 0;
+
+    /* swapped */
+    merged2 = ll_merge(ll2, ll1);
+    ll_begin_iter(merged2);
+    while((iter = (employee *) ll_get_first_node(merged2)) != NULL){
+	assert(expected_id == iter->id);
+	employee_print(iter);
+	expected_id++;
+    }
+    ll_end_iter(merged2);
+    ll_destroy(merged2);
+}
+
 int
 main(void){
 
@@ -315,6 +383,9 @@ main(void){
 
     printf("<test ascending order insert>\n");
     test_asc_order_insert();
+
+    printf("<test merge>\n");
+    test_merge_lists();
 
     printf("All tests are done gracefully\n");
 

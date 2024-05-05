@@ -210,6 +210,97 @@ ll_remove_all(linked_list *ll){
     }
 }
 
+linked_list *
+ll_split(linked_list *ll, int no_nodes){
+    return NULL;
+}
+
+linked_list *
+ll_merge(linked_list *ll1, linked_list *ll2){
+    node *n1, *n2;
+    linked_list *result;
+    int cmp;
+    bool n1_shift = true, n2_shift = true;
+
+    assert(ll1->key_access_cb == ll2->key_access_cb);
+    assert(ll1->key_compare_cb == ll2->key_compare_cb);
+    assert(ll1->free_cb == ll2->free_cb);
+
+    /* If either list is empty, return the other one */
+    if ((ll1 != NULL && ll1->head == NULL) &&
+	(ll2 != NULL && ll2->head != NULL))
+	return ll2;
+
+    if ((ll2 != NULL && ll2->head == NULL) &&
+	(ll1 != NULL && ll1->head != NULL))
+	return ll1;
+
+    /* If both lists are empty, return the first one */
+    if ((ll1 != NULL && ll1->head == NULL) &&
+	(ll2 != NULL && ll2->head == NULL))
+	return ll1;
+
+    result = ll_init(ll1->key_access_cb,
+		     ll1->key_compare_cb,
+		     ll1->free_cb);
+
+    do {
+	if (n1_shift){
+	    n1 = ll_get_first_node(ll1);
+	    if (n1 == NULL)
+		break;
+	}
+
+	if (n2_shift){
+	    n2 = ll_get_first_node(ll2);
+	    if (n2 == NULL)
+		break;
+	}
+
+	n1_shift = n2_shift = false;
+
+	cmp = result->key_compare_cb(result->key_access_cb(n1),
+				     result->key_access_cb(n2));
+
+	if (cmp == -1 || cmp == 0){
+	    /* n1's key < n2's key or those are equal */
+	    ll_tail_insert(result, n1);
+	    n1_shift = true;
+	}else{
+	    /* n1's key > n2's key */
+	    ll_tail_insert(result, n2);
+	    n2_shift = true;
+	}
+
+    } while(true);
+
+    /*
+     * After break, we have one element left in
+     * either n1 or n2. Don't forget to add the left
+     * one.
+     */
+    if (n1 != NULL)
+	ll_tail_insert(result, n1);
+    if (n2 != NULL)
+	ll_tail_insert(result, n2);
+
+    /*
+     * Either input list is now empty,
+     * but the other one isn't. Continue to insert
+     * until the remaining list becomes empty.
+     */
+    while(ll_get_length(ll1) > 0)
+	ll_tail_insert(result, ll_get_first_node(ll1));
+
+    while(ll_get_length(ll2) > 0)
+	ll_tail_insert(result, ll_get_first_node(ll2));
+
+    assert(ll1->head == NULL);
+    assert(ll2->head == NULL);
+
+    return result;
+}
+
 void
 ll_begin_iter(linked_list *ll){
     assert(ll->iter_index == 0);

@@ -52,6 +52,10 @@ void *ll_search_by_key(linked_list *ll, void *key);
 void *ll_remove_by_key(linked_list *ll, void *key);
 void ll_remove_all(linked_list *ll);
 
+/* some extra features */
+linked_list *ll_split(linked_list *ll, int no_nodes);
+linked_list *ll_merge(linked_list *ll1, linked_list *ll2);
+
 /* iteration feature */
 void ll_begin_iter(linked_list *ll);
 void *ll_get_iter_node(linked_list *ll);
