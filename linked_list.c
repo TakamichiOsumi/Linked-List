@@ -212,7 +212,26 @@ ll_remove_all(linked_list *ll){
 
 linked_list *
 ll_split(linked_list *ll, int no_nodes){
-    return NULL;
+    linked_list *new_list;
+    void *p;
+    int i;
+
+    if (ll_get_length(ll) < no_nodes){
+	return ll;
+    }else if (no_nodes <= 0){
+	return ll;
+    }
+
+    new_list = ll_init(ll->key_access_cb,
+		       ll->key_compare_cb,
+		       ll->free_cb);
+
+    for (i = 0; i < no_nodes; i++){
+	assert((p = ll_get_first_node(ll)) != NULL);
+	ll_tail_insert(new_list, p);
+    }
+
+    return new_list;
 }
 
 linked_list *

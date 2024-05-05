@@ -15,6 +15,9 @@ typedef struct linked_list {
     uintptr_t node_count;
     node *head;
 
+    /* Specify how to access key of application data */
+    void *(*key_access_cb)(void *data);
+
     /*
      * Must return
      * -1 when key1 < key2,
@@ -22,9 +25,6 @@ typedef struct linked_list {
      *  1 when key1 > key2.
      */
     int (*key_compare_cb)(void *key1, void *key2);
-
-    /* Indicate how to access key from application data */
-    void *(*key_access_cb)(void *data);
 
     void (*free_cb)(void *data);
 

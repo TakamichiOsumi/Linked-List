@@ -363,6 +363,58 @@ test_merge_lists(void){
     ll_destroy(merged2);
 }
 
+static void
+test_split_list(void){
+    linked_list *ll1, *ll2;
+    employee *iter,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" },
+	e5 = { 5, "yyyy" },
+	e6 = { 6, "zzzz" },
+	e7 = { 7, "xyz"  },
+	e8 = { 8, "xyzz" };
+    uintptr_t expected_id = 0;
+
+    ll1 = ll_init(employee_key_access, employee_key_match,
+		  employee_free);
+
+    ll_asc_insert(ll1, (void *) &e0);
+    ll_asc_insert(ll1, (void *) &e1);
+    ll_asc_insert(ll1, (void *) &e2);
+    ll_asc_insert(ll1, (void *) &e3);
+    ll_asc_insert(ll1, (void *) &e4);
+    ll_asc_insert(ll1, (void *) &e5);
+    ll_asc_insert(ll1, (void *) &e6);
+    ll_asc_insert(ll1, (void *) &e7);
+    ll_asc_insert(ll1, (void *) &e8);
+
+    ll2 = ll_split(ll1, 3);
+
+    /* dump ll2 */
+    ll_begin_iter(ll2);
+    while((iter = ll_get_first_node(ll2)) != NULL){
+	employee_print(iter);
+	assert(expected_id == iter->id);
+	expected_id++;
+    }
+    ll_end_iter(ll2);
+
+    /* dump ll1 */
+    ll_begin_iter(ll1);
+    while((iter = ll_get_first_node(ll1)) != NULL){
+	employee_print(iter);
+	assert(expected_id == iter->id);
+	expected_id++;
+    }
+    ll_end_iter(ll1);
+
+    ll_destroy(ll1);
+    ll_destroy(ll2);
+}
+
 int
 main(void){
 
@@ -386,6 +438,9 @@ main(void){
 
     printf("<test merge>\n");
     test_merge_lists();
+
+    printf("<test split>\n");
+    test_split_list();
 
     printf("All tests are done gracefully\n");
 
