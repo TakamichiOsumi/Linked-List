@@ -377,6 +377,7 @@ test_split_list(void){
 	e7 = { 7, "xyz"  },
 	e8 = { 8, "xyzz" };
     uintptr_t expected_id = 0;
+    int split_no = 3;
 
     ll1 = ll_init(employee_key_access, employee_key_match,
 		  employee_free);
@@ -391,20 +392,22 @@ test_split_list(void){
     ll_asc_insert(ll1, (void *) &e7);
     ll_asc_insert(ll1, (void *) &e8);
 
-    ll2 = ll_split(ll1, 3);
+    ll2 = ll_split(ll1, split_no);
 
     /* dump ll2 */
     ll_begin_iter(ll2);
-    while((iter = ll_get_first_node(ll2)) != NULL){
+    while((iter = ll_get_iter_node(ll2)) != NULL){
 	employee_print(iter);
 	assert(expected_id == iter->id);
 	expected_id++;
     }
     ll_end_iter(ll2);
 
+    assert(ll_get_length(ll2) == split_no);
+
     /* dump ll1 */
     ll_begin_iter(ll1);
-    while((iter = ll_get_first_node(ll1)) != NULL){
+    while((iter = ll_get_iter_node(ll1)) != NULL){
 	employee_print(iter);
 	assert(expected_id == iter->id);
 	expected_id++;

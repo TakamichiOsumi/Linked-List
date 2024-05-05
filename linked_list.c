@@ -39,7 +39,6 @@ ll_init(void *(*key_access_cb)(void *data),
 
     new_ll->current_node = NULL;
     new_ll->iter_in_progress = false;
-    new_ll->iter_index = 0;
 
     return new_ll;
 }
@@ -322,7 +321,6 @@ ll_merge(linked_list *ll1, linked_list *ll2){
 
 void
 ll_begin_iter(linked_list *ll){
-    assert(ll->iter_index == 0);
     assert(ll->iter_in_progress == false);
     assert(ll->current_node == NULL);
 
@@ -337,7 +335,6 @@ ll_get_iter_node(linked_list *ll){
 
     assert(ll->iter_in_progress == true);
 
-    ll->iter_index++;
     n = ll->current_node;
 
     /* If the current node is null, then return null */
@@ -354,7 +351,6 @@ void
 ll_end_iter(linked_list *ll){
     assert(ll->iter_in_progress == true);
 
-    ll->iter_index = 0;
     ll->iter_in_progress = false;
     ll->current_node = NULL;
 }

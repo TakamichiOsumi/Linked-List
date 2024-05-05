@@ -31,7 +31,6 @@ typedef struct linked_list {
     /* internal members for iteration */
     node *current_node;
     bool iter_in_progress;
-    int iter_index;
 } linked_list;
 
 linked_list *ll_init(void *(*key_access_cb)(void *data),
