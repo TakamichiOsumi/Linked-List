@@ -123,6 +123,32 @@ ll_get_first_node(linked_list *ll){
     }
 }
 
+void *
+ll_get_index_node(linked_list *ll, int index){
+    void *p;
+    int iter;
+
+    if (ll == NULL || ll->head == NULL ||
+	index < 0 || ll_get_length(ll) < index){
+	return NULL;
+    }
+
+    iter = 0;
+    ll_begin_iter(ll);
+    while((p = ll_get_iter_node(ll)) != NULL){
+	if (iter == index){
+	    ll_end_iter(ll);
+	    return p;
+	}
+	iter++;
+    }
+    ll_end_iter(ll);
+
+    assert(0);
+
+    return NULL;
+}
+
 /* Don't remove the hit node from the list */
 void*
 ll_search_by_key(linked_list *ll, void *key){

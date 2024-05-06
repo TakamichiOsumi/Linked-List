@@ -418,6 +418,35 @@ test_split_list(void){
     ll_destroy(ll2);
 }
 
+static void
+test_index_fetch(void){
+    linked_list *ll;
+    employee *iter,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" };
+    int i;
+
+    ll = ll_init(employee_key_access, employee_key_match,
+		 employee_free);
+
+    ll_asc_insert(ll, (void *) &e0);
+    ll_asc_insert(ll, (void *) &e1);
+    ll_asc_insert(ll, (void *) &e2);
+    ll_asc_insert(ll, (void *) &e3);
+    ll_asc_insert(ll, (void *) &e4);
+
+    for (i = 0; i < ll_get_length(ll); i++){
+	iter = (employee *) ll_get_index_node(ll, i);
+	employee_print(iter);
+	assert(iter->id == i);
+    }
+
+    ll_destroy(ll);
+}
+
 int
 main(void){
 
@@ -444,6 +473,9 @@ main(void){
 
     printf("<test split>\n");
     test_split_list();
+
+    printf("<test index fetch>\n");
+    test_index_fetch();
 
     printf("All tests are done gracefully\n");
 

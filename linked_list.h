@@ -47,6 +47,7 @@ void ll_tail_insert(linked_list *ll, void *p);
 void ll_asc_insert(linked_list *ll, void *p);
 
 void *ll_get_first_node(linked_list *ll);
+void *ll_get_index_node(linked_list *ll, int index);
 void *ll_search_by_key(linked_list *ll, void *key);
 void *ll_remove_by_key(linked_list *ll, void *key);
 void ll_remove_all(linked_list *ll);
