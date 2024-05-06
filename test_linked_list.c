@@ -39,6 +39,8 @@ employee_key_match(void *key1, void *key2){
     uintptr_t k1 = (uintptr_t) key1,
 	k2 = (uintptr_t) key2;
 
+    /* printf("\t %lu vs %lu\n", k1, k2); */
+
     if (k1 < k2){
 	return -1;
     }else if (k1 == k2){
@@ -295,6 +297,39 @@ test_asc_order_insert(void){
     ll_destroy(ll);
 }
 
+/* bug fix */
+static void
+test_asc_order_insert_v2(void){
+    linked_list *ll;
+    employee *iter,
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" };
+    uintptr_t expected_id = 1;
+
+    ll = ll_init(employee_key_access, employee_key_match,
+		 employee_free);
+
+    ll_asc_insert(ll, (void *) &e4);
+    ll_asc_insert(ll, (void *) &e1);
+    ll_asc_insert(ll, (void *) &e2);
+    ll_asc_insert(ll, (void *) &e3);
+    assert(ll_get_length(ll) == 4);
+
+    ll_begin_iter(ll);
+    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+	employee_print(iter);
+	assert(iter->id == expected_id);
+	expected_id++;
+    }
+    ll_end_iter(ll);
+
+    ll_remove_all(ll);
+
+    ll_destroy(ll);
+}
+
 static void
 test_merge_lists(void){
     linked_list *ll1, *ll2, *merged1, *merged2;
@@ -467,6 +502,9 @@ main(void){
 
     printf("<test ascending order insert>\n");
     test_asc_order_insert();
+
+    printf("<test ascending order insert v2>\n");
+    test_asc_order_insert_v2();
 
     printf("<test merge>\n");
     test_merge_lists();

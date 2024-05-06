@@ -398,7 +398,7 @@ ll_destroy(linked_list *ll){
 void
 ll_asc_insert(linked_list *ll, void *new_data){
     node *new_node, *prev, *curr;
-    bool found_smaller_key = false;
+    bool found_larger_key = false;
 
     if (!ll)
 	return;
@@ -416,17 +416,17 @@ ll_asc_insert(linked_list *ll, void *new_data){
     do {
 	if (ll->key_compare_cb(ll->key_access_cb(curr->data),
 			       ll->key_access_cb(new_data)) == 1){
-	    found_smaller_key = true;
+	    found_larger_key = true;
 	    break;
 	}
 	prev = curr;
     } while((curr = curr->next) != NULL);
 
-    if (found_smaller_key == true){
+    if (found_larger_key == true){
 	assert(prev != NULL);
 	assert(curr != NULL);
 	ll->node_count++;
-	if (prev == ll->head){
+	if (prev == curr){
 	    /*
 	     * If the smaller key is the first node,
 	     * then need to reconnect the list's head
