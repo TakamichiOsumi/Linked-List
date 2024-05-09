@@ -482,6 +482,50 @@ test_index_fetch(void){
     ll_destroy(ll);
 }
 
+/*
+ * Enable user to store NULL in the linked list.
+ *
+ * Indicate iteration APIs stop by NULL, while
+ * iteration by for loop with ll_get_index_node
+ * works OK.
+ */
+static void
+test_null_node_iteration(void){
+    linked_list *ll;
+    employee *iter,
+	e0 = { 0, "abc" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" };
+    int i;
+
+    ll = ll_init(employee_key_access, employee_key_match,
+		 employee_free);
+
+    ll_tail_insert(ll, (void *) &e0);
+    ll_tail_insert(ll, (void *) NULL);
+    ll_tail_insert(ll, (void *) &e2);
+    ll_tail_insert(ll, (void *) &e3);
+    ll_tail_insert(ll, (void *) &e4);
+
+    ll_begin_iter(ll);
+    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+	employee_print(iter); /* print only first employee */
+    }
+    /* This will get the node after the NULL */
+    iter = (employee *) ll_get_iter_node(ll);
+    assert(iter != NULL);
+    assert(iter->id == 2);
+    ll_end_iter(ll);
+
+    for (i = 0; i < ll_get_length(ll); i++){
+	if ((iter = (employee *) ll_get_index_node(ll, i)) != NULL){
+	    /* This won't stop and iterate all nodes safely */
+	    employee_print(iter);
+	}
+    }
+}
+
 int
 main(void){
 
@@ -514,6 +558,9 @@ main(void){
 
     printf("<test index fetch>\n");
     test_index_fetch();
+
+    printf("<test null node iteration>\n");
+    test_null_node_iteration();
 
     printf("All tests are done gracefully\n");
 

@@ -125,7 +125,7 @@ ll_get_first_node(linked_list *ll){
 
 void *
 ll_get_index_node(linked_list *ll, int index){
-    void *p;
+    node *n;
     int iter;
 
     if (ll == NULL || ll->head == NULL ||
@@ -133,16 +133,12 @@ ll_get_index_node(linked_list *ll, int index){
 	return NULL;
     }
 
-    iter = 0;
-    ll_begin_iter(ll);
-    while((p = ll_get_iter_node(ll)) != NULL){
-	if (iter == index){
-	    ll_end_iter(ll);
-	    return p;
-	}
-	iter++;
+    n = ll->head;
+    for (iter = 0; iter < ll_get_length(ll); iter++){
+	if (iter == index)
+	    return n->data;
+	n = n->next;
     }
-    ll_end_iter(ll);
 
     assert(0);
 
