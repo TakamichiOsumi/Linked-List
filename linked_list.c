@@ -134,7 +134,7 @@ ll_get_index_node(linked_list *ll, int index){
     }
 
     n = ll->head;
-    for (iter = 0; iter <= ll_get_length(ll); iter++){
+    for (iter = 0; iter < ll_get_length(ll); iter++){
 	if (iter == index)
 	    return n->data;
 	n = n->next;
