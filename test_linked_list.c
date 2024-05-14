@@ -578,7 +578,7 @@ test_index_insertion(void){
 static void
 test_for_loop_iter(){
     linked_list *ll;
-    employee *iter,
+    employee *last, *iter,
 	e0 = { 0, "abc" },
 	e1 = { 1, "foo" },
 	e2 = { 2, "bar" },
@@ -607,11 +607,13 @@ test_for_loop_iter(){
     for (i = 0; i < ll_get_length(ll); i++){
 	if ((iter = ll_get_iter_node(ll)) == NULL)
 	    continue;
+	last = iter;
 	non_null++;
     }
     ll_end_iter(ll);
 
     assert(non_null == 5);
+    assert(last->id == 0);
 }
 
 static void
