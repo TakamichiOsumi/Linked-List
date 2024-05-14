@@ -248,7 +248,7 @@ ll_split(linked_list *ll, int no_nodes){
 		       ll->free_cb);
 
     for (i = 0; i < no_nodes; i++){
-	assert((p = ll_get_first_node(ll)) != NULL);
+	p = ll_get_first_node(ll);
 	ll_tail_insert(new_list, p);
     }
 
