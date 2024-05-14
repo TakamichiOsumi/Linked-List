@@ -520,7 +520,7 @@ test_null_node_iteration(void){
 
     for (i = 0; i < ll_get_length(ll); i++){
 	if ((iter = (employee *) ll_get_index_node(ll, i)) != NULL){
-	    /* This won't stop and iterate all nodes safely */
+	    /* This won't stop and iterates all nodes safely */
 	    employee_print(iter);
 	}
     }
