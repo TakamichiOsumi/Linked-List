@@ -576,6 +576,45 @@ test_index_insertion(void){
 }
 
 static void
+test_for_loop_iter(){
+    linked_list *ll;
+    employee *iter,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" };
+    int i, non_null;
+
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free);
+
+    ll_insert(ll, NULL);
+    ll_insert(ll, (void *) &e0);
+    ll_insert(ll, (void *) &e1);
+    ll_insert(ll, NULL);
+    ll_insert(ll, (void *) &e2);
+    ll_insert(ll, NULL);
+    ll_insert(ll, NULL);
+    ll_insert(ll, (void *) &e3);
+    ll_insert(ll, (void *) &e4);
+    ll_insert(ll, NULL);
+    assert(ll_get_length(ll) == 10);
+
+    non_null = 0;
+    ll_begin_iter(ll);
+    for (i = 0; i < ll_get_length(ll); i++){
+	if ((iter = ll_get_iter_node(ll)) == NULL)
+	    continue;
+	non_null++;
+    }
+    ll_end_iter(ll);
+
+    assert(non_null == 5);
+}
+
+static void
 run_bundled_tests(void){
     printf("<test basic operations>\n");
     test_basic_operations();
@@ -612,6 +651,9 @@ run_bundled_tests(void){
 
     printf("<test index insertion>\n");
     test_index_insertion();
+
+    printf("<test combination of iteration API and for loop>\n");
+    test_for_loop_iter();
 }
 
 int
