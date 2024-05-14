@@ -526,9 +526,57 @@ test_null_node_iteration(void){
     }
 }
 
-int
-main(void){
+static void
+test_index_insertion(void){
+    linked_list *ll;
+    employee *iter,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" },
+	e10 = { 10, "abc" },
+	e11 = { 11, "efg" },
+	e12 = { 12, "foo" },
+	e13 = { 13, "aaa" },
+	e14 = { 14, "bbb" },
+	e15 = { 15, "ccc" };
 
+    int ans_index = 0, expected_output[] =
+	{ 10, 12, 13, 11, 0, 1, 2, 3, 4, 15, 14 };
+
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free);
+
+    ll_asc_insert(ll, (void *) &e0);
+    ll_asc_insert(ll, (void *) &e1);
+    ll_asc_insert(ll, (void *) &e2);
+    ll_asc_insert(ll, (void *) &e3);
+    ll_asc_insert(ll, (void *) &e4);
+
+    ll_index_insert(ll, (void *) &e10, 0);
+    ll_index_insert(ll, (void *) &e11, 1);
+    ll_index_insert(ll, (void *) &e12, 1);
+    ll_index_insert(ll, (void *) &e13, 2);
+    ll_index_insert(ll, (void *) &e14, ll_get_length(ll));
+    ll_index_insert(ll, (void *) &e15, ll_get_length(ll) - 1);
+
+    ll_begin_iter(ll);
+    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+	employee_print(iter);
+	if (iter->id != expected_output[ans_index++]){
+	    printf("the expected order is not the same as the list order\n");
+	    exit(-1);
+	}
+    }
+    ll_end_iter(ll);
+
+    ll_destroy(ll);
+}
+
+static void
+run_bundled_tests(void){
     printf("<test basic operations>\n");
     test_basic_operations();
 
@@ -561,6 +609,15 @@ main(void){
 
     printf("<test null node iteration>\n");
     test_null_node_iteration();
+
+    printf("<test index insertion>\n");
+    test_index_insertion();
+}
+
+int
+main(void){
+
+    run_bundled_tests();
 
     printf("All tests are done gracefully\n");
 

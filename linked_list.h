@@ -45,7 +45,7 @@ unsigned int ll_get_length(linked_list *ll);
 void ll_insert(linked_list *ll, void *p);
 void ll_tail_insert(linked_list *ll, void *p);
 void ll_asc_insert(linked_list *ll, void *p);
-
+void ll_index_insert(linked_list *ll, void *p, int index);
 void *ll_get_first_node(linked_list *ll);
 void *ll_get_index_node(linked_list *ll, int index);
 void *ll_search_by_key(linked_list *ll, void *key);

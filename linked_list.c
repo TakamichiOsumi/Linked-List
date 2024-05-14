@@ -446,3 +446,36 @@ ll_asc_insert(linked_list *ll, void *new_data){
 	prev->next = new_node;
     }
 }
+
+void
+ll_index_insert(linked_list *ll, void *new_data, int index){
+    if (!ll || index < 0)
+	return;
+
+    if (ll_get_length(ll) < index)
+	return;
+
+    if (index == 0){
+	ll_insert(ll, new_data);
+    }else if(index == ll_get_length(ll)){
+	ll_tail_insert(ll, new_data);
+    }else{
+	node *prev, *curr, *new_node;
+	int iter = 0;
+
+	new_node = ll_gen_node(new_data);
+	prev = curr = ll->head;
+	do {
+	    if (iter == index){
+		new_node->next = curr;
+		prev->next = new_node;
+		ll->node_count++;
+		return;
+	    }
+	    prev = curr;
+	    iter++;
+	} while((curr = curr->next) != NULL);
+
+	assert(0);
+    }
+}
