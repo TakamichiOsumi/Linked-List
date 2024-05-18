@@ -617,6 +617,46 @@ test_for_loop_iter(){
 }
 
 static void
+test_tail_remove(void){
+    linked_list *ll;
+    employee *e,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" };
+
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free);
+
+    /* ll_tail_remove() for no data returns NULL */
+    assert(ll_tail_remove(ll) == NULL);
+
+    ll_tail_insert(ll, (void *) &e0);
+    e = (employee *) ll_tail_remove(ll);
+    assert(e->id == 0);
+
+    ll_tail_insert(ll, (void *) &e1);
+    ll_tail_insert(ll, (void *) &e2);
+    ll_tail_insert(ll, (void *) &e3);
+    ll_tail_insert(ll, (void *) &e4);
+
+    e = (employee *) ll_tail_remove(ll);
+    assert(e->id == 4);
+    e = (employee *) ll_tail_remove(ll);
+    assert(e->id == 3);
+    e = (employee *) ll_tail_remove(ll);
+    assert(e->id == 2);
+    e = (employee *) ll_tail_remove(ll);
+    assert(e->id == 1);
+
+    assert(ll_get_length(ll) == 0);
+    e = (employee *) ll_tail_remove(ll);
+    assert(e == NULL);
+}
+
+static void
 run_bundled_tests(void){
     printf("<test basic operations>\n");
     test_basic_operations();
@@ -656,6 +696,9 @@ run_bundled_tests(void){
 
     printf("<test combination of iteration API and for loop>\n");
     test_for_loop_iter();
+
+    printf("<test tail removal>\n");
+    test_tail_remove();
 }
 
 int
