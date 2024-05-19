@@ -663,6 +663,52 @@ test_tail_remove(void){
     assert(ll_get_length(ll) == 0);
     e = (employee *) ll_tail_remove(ll);
     assert(e == NULL);
+
+    ll_destroy(ll);
+}
+
+static void
+test_key_replacement(void){
+    linked_list *ll;
+    employee *e,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" },
+	e10 = { 10, "foo" };
+    int i;
+
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free);
+
+    ll_tail_insert(ll, (void *) &e0);
+    ll_tail_insert(ll, (void *) &e1);
+    ll_tail_insert(ll, (void *) &e2);
+    ll_tail_insert(ll, (void *) &e10); /* target */
+    ll_tail_insert(ll, (void *) &e4);
+
+    /* failure */
+    assert(ll_replace_by_key(ll, (void *) 100, (void *) &e3) == NULL);
+    /* success */
+    assert(ll_replace_by_key(ll, (void *) 10, (void *) &e3) != NULL);
+
+    ll_begin_iter(ll);
+    for (i = 0; i < ll_get_length(ll); i++){
+	e = ll_get_iter_data(ll);
+
+	employee_print(e);
+	if (e->id != i){
+	    fprintf(stderr,
+		    "the result is not same as the expectation. %lu vs. %lu\n",
+		    e->id, (uintptr_t) i);
+	    exit(-1);
+	}
+    }
+    ll_end_iter(ll);
+
+    ll_destroy(ll);
 }
 
 static void
@@ -708,6 +754,9 @@ run_bundled_tests(void){
 
     printf("<test tail removal>\n");
     test_tail_remove();
+
+    printf("<test key replacement>\n");
+    test_key_replacement();
 }
 
 int

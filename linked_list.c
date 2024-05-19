@@ -214,6 +214,33 @@ ll_remove_by_key(linked_list *ll, void *key){
 }
 
 void *
+ll_replace_by_key(linked_list *ll, void *old_key, void *new_data){
+    node *curr;
+
+    if (ll == NULL || ll->head == NULL)
+	return NULL;
+
+    curr = ll->head;
+    while(true){
+
+	if (ll->key_compare_cb(old_key,
+			       ll->key_access_cb(curr->data)) == 0){
+	    void *tmp = curr->data;
+
+	    curr->data = new_data;
+
+	    return tmp;
+	}
+
+	if ((curr = curr->next) == NULL)
+	    break;
+    }
+
+    return NULL;
+}
+
+
+void *
 ll_tail_remove(linked_list *ll){
     node *prev, *curr;
     int i, list_len = ll_get_length(ll);

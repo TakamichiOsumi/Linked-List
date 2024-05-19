@@ -49,6 +49,8 @@ void *ll_remove_first_data(linked_list *ll);
 void *ll_ref_index_data(linked_list *ll, int index);
 void *ll_search_by_key(linked_list *ll, void *key);
 void *ll_remove_by_key(linked_list *ll, void *key);
+void *ll_replace_by_key(linked_list *ll, void *old_key,
+			void *new_data);
 void *ll_tail_remove(linked_list *ll);
 void ll_remove_all(linked_list *ll);
 
