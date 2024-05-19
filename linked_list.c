@@ -102,7 +102,7 @@ ll_tail_insert(linked_list *ll, void *data){
 }
 
 void *
-ll_get_first_node(linked_list *ll){
+ll_remove_first_data(linked_list *ll){
     if (ll == NULL || ll->head == NULL)
 	return NULL;
     else{
@@ -124,7 +124,7 @@ ll_get_first_node(linked_list *ll){
 }
 
 void *
-ll_get_index_node(linked_list *ll, int index){
+ll_ref_index_data(linked_list *ll, int index){
     node *n;
     int iter;
 
@@ -223,7 +223,7 @@ ll_tail_remove(linked_list *ll){
 	return NULL;
 
     if (list_len == 1)
-	return ll_get_first_node(ll);
+	return ll_remove_first_data(ll);
 
     ll->node_count--;
 
@@ -246,7 +246,7 @@ ll_remove_all(linked_list *ll){
     void *p;
 
     while(true){
-	p = ll_get_first_node(ll);
+	p = ll_remove_first_data(ll);
 
 	/* are we done ? */
 	if (!p)
@@ -276,7 +276,7 @@ ll_split(linked_list *ll, int no_nodes){
 		       ll->free_cb);
 
     for (i = 0; i < no_nodes; i++){
-	p = ll_get_first_node(ll);
+	p = ll_remove_first_data(ll);
 	ll_tail_insert(new_list, p);
     }
 
@@ -314,13 +314,13 @@ ll_merge(linked_list *ll1, linked_list *ll2){
 
     do {
 	if (n1_shift){
-	    n1 = ll_get_first_node(ll1);
+	    n1 = ll_remove_first_data(ll1);
 	    if (n1 == NULL)
 		break;
 	}
 
 	if (n2_shift){
-	    n2 = ll_get_first_node(ll2);
+	    n2 = ll_remove_first_data(ll2);
 	    if (n2 == NULL)
 		break;
 	}
@@ -358,10 +358,10 @@ ll_merge(linked_list *ll1, linked_list *ll2){
      * until the remaining list becomes empty.
      */
     while(ll_get_length(ll1) > 0)
-	ll_tail_insert(result, ll_get_first_node(ll1));
+	ll_tail_insert(result, ll_remove_first_data(ll1));
 
     while(ll_get_length(ll2) > 0)
-	ll_tail_insert(result, ll_get_first_node(ll2));
+	ll_tail_insert(result, ll_remove_first_data(ll2));
 
     assert(ll1->head == NULL);
     assert(ll2->head == NULL);

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "linked_list.h"
+#include "../linked_list.h"
 
 #define BUF_SIZE 64
 typedef struct employee {
@@ -123,11 +123,11 @@ test_get_first_operation(void){
     ll_insert(ll, (void *) &e4);
     ll_insert(ll, (void *) &e5);
 
-    test_employee_id((employee *) ll_get_first_node(ll), 5);
-    test_employee_id((employee *) ll_get_first_node(ll), 4);
-    test_employee_id((employee *) ll_get_first_node(ll), 3);
-    test_employee_id((employee *) ll_get_first_node(ll), 2);
-    test_employee_id((employee *) ll_get_first_node(ll), 1);
+    test_employee_id((employee *) ll_remove_first_data(ll), 5);
+    test_employee_id((employee *) ll_remove_first_data(ll), 4);
+    test_employee_id((employee *) ll_remove_first_data(ll), 3);
+    test_employee_id((employee *) ll_remove_first_data(ll), 2);
+    test_employee_id((employee *) ll_remove_first_data(ll), 1);
 
     printf("done with the tests to get first node...\n");
 
@@ -366,7 +366,7 @@ test_merge_lists(void){
      */
     merged1 = ll_merge(ll1, ll2);
     ll_begin_iter(merged1);
-    while((iter = (employee *) ll_get_first_node(merged1)) != NULL){
+    while((iter = (employee *) ll_remove_first_data(merged1)) != NULL){
 	employee_print(iter);
 	assert(expected_id == iter->id);
 	expected_id++;
@@ -389,7 +389,7 @@ test_merge_lists(void){
     /* swapped */
     merged2 = ll_merge(ll2, ll1);
     ll_begin_iter(merged2);
-    while((iter = (employee *) ll_get_first_node(merged2)) != NULL){
+    while((iter = (employee *) ll_remove_first_data(merged2)) != NULL){
 	assert(expected_id == iter->id);
 	employee_print(iter);
 	expected_id++;
@@ -474,7 +474,7 @@ test_index_fetch(void){
     ll_asc_insert(ll, (void *) &e4);
 
     for (i = 0; i < ll_get_length(ll); i++){
-	iter = (employee *) ll_get_index_node(ll, i);
+	iter = (employee *) ll_ref_index_data(ll, i);
 	employee_print(iter);
 	assert(iter->id == i);
     }
@@ -486,7 +486,7 @@ test_index_fetch(void){
  * Enable user to store NULL in the linked list.
  *
  * Indicate iteration APIs stop by NULL, while
- * iteration by for loop with ll_get_index_node
+ * iteration by for loop with ll_ref_index_data
  * works OK.
  */
 static void
@@ -519,7 +519,7 @@ test_null_node_iteration(void){
     ll_end_iter(ll);
 
     for (i = 0; i < ll_get_length(ll); i++){
-	if ((iter = (employee *) ll_get_index_node(ll, i)) != NULL){
+	if ((iter = (employee *) ll_ref_index_data(ll, i)) != NULL){
 	    /* This won't stop and iterates all nodes safely */
 	    employee_print(iter);
 	}
