@@ -184,34 +184,34 @@ test_iteration_operation(void){
     ll_begin_iter(ll);
     ll_end_iter(ll);
 
-    /* Test 2 : executing ll_get_iter_node without any data */
+    /* Test 2 : executing ll_get_iter_data without any data */
     ll_begin_iter(ll);
-    if (ll_get_iter_node(ll) != NULL){
+    if (ll_get_iter_data(ll) != NULL){
 	fprintf(stderr, "invalid node has been returned\n");
 	exit(-1);
     }
     ll_end_iter(ll);
 
-    /* Test 3 : executing ll_get_iter_node for one data */
+    /* Test 3 : executing ll_get_iter_data for one data */
     ll_insert(ll, (void *) &e1);
     ll_begin_iter(ll);
-    if ((iter = ll_get_iter_node(ll)) == NULL){
+    if ((iter = ll_get_iter_data(ll)) == NULL){
 	fprintf(stderr, "inserted node has not been returned\n");
 	exit(-1);
     }
-    if ((iter = ll_get_iter_node(ll)) != NULL){
+    if ((iter = ll_get_iter_data(ll)) != NULL){
 	fprintf(stderr, "non-existent node has been returned\n");
 	exit(-1);
     }
     ll_end_iter(ll);
 
-    /* Test 4 : executing ll_get_iter_node for multiple nodes */
+    /* Test 4 : executing ll_get_iter_data for multiple nodes */
     ll_insert(ll, (void *) &e2);
     ll_insert(ll, (void *) &e3);
 
     printf("Dump three nodes\n");
     ll_begin_iter(ll);
-    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+    while((iter = (employee *) ll_get_iter_data(ll)) != NULL){
 	employee_print(iter);
     }
     ll_end_iter(ll);
@@ -219,7 +219,7 @@ test_iteration_operation(void){
     /* Test 5 : break in the middle of iteration and close the iteration */
     printf("Break in the middle of iteration\n");
     ll_begin_iter(ll);
-    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+    while((iter = (employee *) ll_get_iter_data(ll)) != NULL){
 	employee_print(iter);
 	if (iter->id == 2){
 	    break;
@@ -254,7 +254,7 @@ test_tail_insert(void){
 
     assert(ll_get_length(ll) == 5);
     ll_begin_iter(ll);
-    while((iter = (employee *) ll_get_iter_node(ll)) == NULL){
+    while((iter = (employee *) ll_get_iter_data(ll)) == NULL){
 	assert(iter->id == expected_val);
 	expected_val++;
     }
@@ -286,7 +286,7 @@ test_asc_order_insert(void){
     assert(ll_get_length(ll) == 6);
 
     ll_begin_iter(ll);
-    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+    while((iter = (employee *) ll_get_iter_data(ll)) != NULL){
 	assert(iter->id == expected_id);
 	expected_id++;
     }
@@ -318,7 +318,7 @@ test_asc_order_insert_v2(void){
     assert(ll_get_length(ll) == 4);
 
     ll_begin_iter(ll);
-    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+    while((iter = (employee *) ll_get_iter_data(ll)) != NULL){
 	employee_print(iter);
 	assert(iter->id == expected_id);
 	expected_id++;
@@ -431,7 +431,7 @@ test_split_list(void){
 
     /* dump ll2 */
     ll_begin_iter(ll2);
-    while((iter = ll_get_iter_node(ll2)) != NULL){
+    while((iter = ll_get_iter_data(ll2)) != NULL){
 	employee_print(iter);
 	assert(expected_id == iter->id);
 	expected_id++;
@@ -442,7 +442,7 @@ test_split_list(void){
 
     /* dump ll1 */
     ll_begin_iter(ll1);
-    while((iter = ll_get_iter_node(ll1)) != NULL){
+    while((iter = ll_get_iter_data(ll1)) != NULL){
 	employee_print(iter);
 	assert(expected_id == iter->id);
 	expected_id++;
@@ -509,15 +509,24 @@ test_null_node_iteration(void){
     ll_tail_insert(ll, (void *) &e4);
 
     ll_begin_iter(ll);
-    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+    while((iter = (employee *) ll_get_iter_data(ll)) != NULL){
 	employee_print(iter); /* print only first employee */
     }
     /* This will get the node after the NULL */
-    iter = (employee *) ll_get_iter_node(ll);
+    iter = (employee *) ll_get_iter_data(ll);
     assert(iter != NULL);
     assert(iter->id == 2);
     ll_end_iter(ll);
 
+    /*
+     * Note:
+     *
+     * ll_iter_begin(), ll_end_iter() and ll_get_iter_data() works
+     * with NULL. So, this is slower than the way using them to wrap
+     * the iteration. But, checking the behavior of ll_ref_index_data()
+     * in a for loop should be tested. Intentionally, keep this test
+     * here.
+     */
     for (i = 0; i < ll_get_length(ll); i++){
 	if ((iter = (employee *) ll_ref_index_data(ll, i)) != NULL){
 	    /* This won't stop and iterates all nodes safely */
@@ -563,7 +572,7 @@ test_index_insertion(void){
     ll_index_insert(ll, (void *) &e15, ll_get_length(ll) - 1);
 
     ll_begin_iter(ll);
-    while((iter = (employee *) ll_get_iter_node(ll)) != NULL){
+    while((iter = (employee *) ll_get_iter_data(ll)) != NULL){
 	employee_print(iter);
 	if (iter->id != expected_output[ans_index++]){
 	    printf("the expected order is not the same as the list order\n");
@@ -605,7 +614,7 @@ test_for_loop_iter(){
     non_null = 0;
     ll_begin_iter(ll);
     for (i = 0; i < ll_get_length(ll); i++){
-	if ((iter = ll_get_iter_node(ll)) == NULL)
+	if ((iter = ll_get_iter_data(ll)) == NULL)
 	    continue;
 	last = iter;
 	non_null++;

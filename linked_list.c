@@ -380,7 +380,7 @@ ll_begin_iter(linked_list *ll){
 }
 
 void *
-ll_get_iter_node(linked_list *ll){
+ll_get_iter_data(linked_list *ll){
     node *n;
 
     assert(ll->iter_in_progress == true);

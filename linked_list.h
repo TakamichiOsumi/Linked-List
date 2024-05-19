@@ -37,7 +37,6 @@ linked_list *ll_init(void *(*key_access_cb)(void *data),
 		     int (*key_compare_cb)(void *key1,
 					   void *key2),
 		     void (*free_cb)(void *data));
-
 bool ll_is_empty(linked_list *ll);
 unsigned int ll_get_length(linked_list *ll);
 
@@ -59,7 +58,7 @@ linked_list *ll_merge(linked_list *ll1, linked_list *ll2);
 
 /* iteration feature */
 void ll_begin_iter(linked_list *ll);
-void *ll_get_iter_node(linked_list *ll);
+void *ll_get_iter_data(linked_list *ll);
 void ll_end_iter(linked_list *ll);
 
 void ll_destroy(linked_list *ll);
