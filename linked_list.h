@@ -12,7 +12,9 @@ typedef struct node {
  * Expect only one caller just for now.
  */
 typedef struct linked_list {
+
     uintptr_t node_count;
+
     node *head;
 
     /* Specify how to access key of application data */
@@ -28,9 +30,11 @@ typedef struct linked_list {
 
     void (*free_cb)(void *data);
 
-    /* internal members for iteration */
+    /* Iteration control */
     node *current_node;
+
     bool iter_in_progress;
+
 } linked_list;
 
 linked_list *ll_init(void *(*key_access_cb)(void *data),
@@ -45,6 +49,7 @@ void ll_insert(linked_list *ll, void *p);
 void ll_tail_insert(linked_list *ll, void *p);
 void ll_asc_insert(linked_list *ll, void *p);
 void ll_index_insert(linked_list *ll, void *p, int index);
+void *ll_index_remove(linked_list *ll, int index);
 void *ll_remove_first_data(linked_list *ll);
 void *ll_ref_index_data(linked_list *ll, int index);
 void *ll_search_by_key(linked_list *ll, void *key);

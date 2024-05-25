@@ -712,6 +712,69 @@ test_key_replacement(void){
 }
 
 static void
+test_index_removal(void){
+    linked_list *ll;
+    employee *e,
+	e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" },
+	e3 = { 3, "bazz" },
+	e4 = { 4, "xxxx" },
+	e5 = { 5, "aaaa" },
+	e6 = { 6, "bbbb" },
+	e7 = { 7, "cccc" };
+    uintptr_t answers[] = { 1, 3, 4, 5, 6 };
+    int i;
+
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free);
+
+    ll_tail_insert(ll, (void *) &e0); /* will be removed */
+    ll_tail_insert(ll, (void *) &e1);
+    ll_tail_insert(ll, (void *) &e2); /* will be removed */
+    ll_tail_insert(ll, (void *) &e3);
+    ll_tail_insert(ll, (void *) &e4);
+    ll_tail_insert(ll, (void *) &e5);
+    ll_tail_insert(ll, (void *) &e6);
+    ll_tail_insert(ll, (void *) &e7); /* will be removed */
+    assert(ll_get_length(ll) == 8);
+
+    /* failure */
+    assert(ll_index_remove(ll, -1) == NULL);
+    assert(ll_index_remove(ll, 10) == NULL);
+
+    /* success */
+    e = (employee *) ll_index_remove(ll, 0);
+    assert(e->id == 0);
+    assert(ll_get_length(ll) == 7);
+
+    e = (employee *) ll_index_remove(ll, ll_get_length(ll) - 1);
+    assert(e->id == 7);
+    assert(ll_get_length(ll) == 6);
+
+    e = (employee *) ll_index_remove(ll, 1);
+    assert(e->id == 2);
+    assert(ll_get_length(ll) == 5);
+
+    ll_begin_iter(ll);
+    for (i = 0; i < ll_get_length(ll); i++){
+	e = (employee *) ll_get_iter_data(ll);
+	employee_print(e);
+
+	if (e->id != answers[i]){
+	    fprintf(stderr,
+		    "the result is not same as the expectation. %lu vs. %lu\n",
+		    e->id, answers[i]);
+	    exit(-1);
+	}
+    }
+    ll_end_iter(ll);
+
+    ll_destroy(ll);
+}
+
+static void
 run_bundled_tests(void){
     printf("<test basic operations>\n");
     test_basic_operations();
@@ -757,6 +820,9 @@ run_bundled_tests(void){
 
     printf("<test key replacement>\n");
     test_key_replacement();
+
+    printf("<test index removal>\n");
+    test_index_removal();
 }
 
 int

@@ -534,3 +534,56 @@ ll_index_insert(linked_list *ll, void *new_data, int index){
 	assert(0);
     }
 }
+
+void *
+ll_index_remove(linked_list *ll, int index){
+    node *prev, *curr;
+    void *data;
+    int i = 0;
+
+    if (ll == NULL || ll->head == NULL ||
+	index < 0 || ll_get_length(ll) - 1 < index)
+	return NULL;
+
+    /* The first node ? */
+    if (index == 0)
+	return ll_remove_first_data(ll);
+
+    /* The last node ? */
+    if (index == ll_get_length(ll) - 1)
+	return ll_tail_remove(ll);
+
+    prev = curr = ll->head;
+
+    while(true){
+
+	if (i == index){
+	    /* This must be an internal node */
+	    assert(curr->next != NULL);
+
+	    ll->node_count--;
+	    prev->next = curr->next;
+
+	    data = curr->data;
+
+	    /* free the node */
+	    if (ll->free_cb)
+		ll->free_cb(data);
+	    curr->data = NULL;
+	    curr->next = NULL;
+	    free(curr);
+
+	    return data;
+	}
+
+	i++;
+	prev = curr;
+	curr = curr->next;
+	if (curr == NULL)
+	    break;
+    }
+
+    assert(0);
+
+    return NULL;
+}
