@@ -775,6 +775,27 @@ test_index_removal(void){
 }
 
 static void
+test_key_existence(void){
+    linked_list *ll;
+    employee e0 = { 0, "abc" },
+	e1 = { 1, "foo" },
+	e2 = { 2, "bar" };
+
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free);
+    ll_tail_insert(ll, (void *) &e0);
+    ll_tail_insert(ll, (void *) &e1);
+    ll_tail_insert(ll, (void *) &e2);
+
+    assert(ll_has_key(ll, (void *) -1) == false);
+    assert(ll_has_key(ll, (void *) 0) == true);
+    assert(ll_has_key(ll, (void *) 3) == false);
+
+    ll_destroy(ll);
+}
+
+static void
 run_bundled_tests(void){
     printf("<test basic operations>\n");
     test_basic_operations();
@@ -823,6 +844,9 @@ run_bundled_tests(void){
 
     printf("<test index removal>\n");
     test_index_removal();
+
+    printf("<test key existence>\n");
+    test_key_existence();
 }
 
 int

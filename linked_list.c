@@ -587,3 +587,26 @@ ll_index_remove(linked_list *ll, int index){
 
     return NULL;
 }
+
+bool
+ll_has_key(linked_list *ll, void *key)
+{
+    int i;
+    void *p;
+
+    if (ll == NULL || ll->head == NULL)
+	return false;
+
+    ll_begin_iter(ll);
+    for (i = 0; i < ll_get_length(ll); i++){
+	p = ll_get_iter_data(ll);
+	if (ll->key_compare_cb(ll->key_access_cb(p),
+			       key) == 0){
+	    ll_end_iter(ll);
+	    return true;
+	}
+    }
+    ll_end_iter(ll);
+
+    return false;
+}
