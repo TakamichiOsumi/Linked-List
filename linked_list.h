@@ -43,7 +43,7 @@ linked_list *ll_init(void *(*key_access_cb)(void *data),
 		     void (*free_cb)(void *data));
 bool ll_is_empty(linked_list *ll);
 bool ll_has_key(linked_list *ll, void *key);
-unsigned int ll_get_length(linked_list *ll);
+int ll_get_length(linked_list *ll);
 
 /* basic operations (insert, delete, search ... etc) */
 void ll_insert(linked_list *ll, void *p);

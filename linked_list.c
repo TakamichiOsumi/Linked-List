@@ -53,7 +53,7 @@ ll_is_empty(linked_list *ll){
 	return false;
 }
 
-unsigned int
+int
 ll_get_length(linked_list *ll){
     return ll->node_count;
 }
