@@ -310,35 +310,27 @@ ll_split(linked_list *ll, int no_nodes){
     return new_list;
 }
 
+/*
+ * If either list is empty, move the left keys to the
+ * newly created linked list. In any case, drain both
+ * input lists completely.
+ */
 linked_list *
 ll_merge(linked_list *ll1, linked_list *ll2){
     node *n1, *n2;
     linked_list *result;
     int cmp;
-    bool n1_shift = true, n2_shift = true;
+    bool n1_shift, n2_shift;
 
     assert(ll1->key_access_cb == ll2->key_access_cb);
     assert(ll1->key_compare_cb == ll2->key_compare_cb);
     assert(ll1->free_cb == ll2->free_cb);
 
-    /* If either list is empty, return the other one */
-    if ((ll1 != NULL && ll1->head == NULL) &&
-	(ll2 != NULL && ll2->head != NULL))
-	return ll2;
-
-    if ((ll2 != NULL && ll2->head == NULL) &&
-	(ll1 != NULL && ll1->head != NULL))
-	return ll1;
-
-    /* If both lists are empty, return the first one */
-    if ((ll1 != NULL && ll1->head == NULL) &&
-	(ll2 != NULL && ll2->head == NULL))
-	return ll1;
-
     result = ll_init(ll1->key_access_cb,
 		     ll1->key_compare_cb,
 		     ll1->free_cb);
 
+    n1_shift = n2_shift = true;
     do {
 	if (n1_shift){
 	    n1 = ll_remove_first_data(ll1);
