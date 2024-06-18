@@ -317,10 +317,10 @@ ll_split(linked_list *ll, int no_nodes){
  */
 linked_list *
 ll_merge(linked_list *ll1, linked_list *ll2){
-    node *n1, *n2;
+    void *d1 = NULL, *d2 = NULL;
     linked_list *result;
     int cmp;
-    bool n1_shift, n2_shift;
+    bool d1_shift, d2_shift;
 
     assert(ll1->key_access_cb == ll2->key_access_cb);
     assert(ll1->key_compare_cb == ll2->key_compare_cb);
@@ -330,46 +330,63 @@ ll_merge(linked_list *ll1, linked_list *ll2){
 		     ll1->key_compare_cb,
 		     ll1->free_cb);
 
-    n1_shift = n2_shift = true;
+    /* Handle the cases of empty list */
+    if (ll_get_length(ll1) == 0 && ll_get_length(ll2) == 0)
+	return result;
+
+    if (ll_get_length(ll1) == 0 && ll_get_length(ll2) != 0){
+	while(ll_get_length(ll2) > 0)
+	    ll_tail_insert(result, ll_remove_first_data(ll2));
+	return result;
+    }
+
+    if (ll_get_length(ll1) != 0 && ll_get_length(ll2) == 0){
+	while(ll_get_length(ll1) > 0)
+	    ll_tail_insert(result, ll_remove_first_data(ll1));
+	return result;
+    }
+
+    /* We have two lists with data to merge */
+    d1_shift = d2_shift = true;
     do {
-	if (n1_shift){
-	    n1 = ll_remove_first_data(ll1);
-	    if (n1 == NULL)
+	if (d1_shift){
+	    d1 = ll_remove_first_data(ll1);
+	    if (d1 == NULL)
 		break;
 	}
 
-	if (n2_shift){
-	    n2 = ll_remove_first_data(ll2);
-	    if (n2 == NULL)
+	if (d2_shift){
+	    d2 = ll_remove_first_data(ll2);
+	    if (d2 == NULL)
 		break;
 	}
 
-	n1_shift = n2_shift = false;
+	d1_shift = d2_shift = false;
 
-	cmp = result->key_compare_cb(result->key_access_cb(n1),
-				     result->key_access_cb(n2));
+	cmp = result->key_compare_cb(result->key_access_cb(d1),
+				     result->key_access_cb(d2));
 
 	if (cmp == -1 || cmp == 0){
-	    /* n1's key < n2's key or those are equal */
-	    ll_tail_insert(result, n1);
-	    n1_shift = true;
+	    /* d1 key < d2 key or those are equal */
+	    ll_tail_insert(result, d1);
+	    d1_shift = true;
 	}else{
-	    /* n1's key > n2's key */
-	    ll_tail_insert(result, n2);
-	    n2_shift = true;
+	    /* d1 key > d2 key */
+	    ll_tail_insert(result, d2);
+	    d2_shift = true;
 	}
 
     } while(true);
 
     /*
      * After break, we have one element left in
-     * either n1 or n2. Don't forget to add the left
+     * either d1 or d2. Don't forget to add the left
      * one.
      */
-    if (n1 != NULL)
-	ll_tail_insert(result, n1);
-    if (n2 != NULL)
-	ll_tail_insert(result, n2);
+    if (d1 != NULL)
+	ll_tail_insert(result, d1);
+    if (d2 != NULL)
+	ll_tail_insert(result, d2);
 
     /*
      * Either input list is now empty,

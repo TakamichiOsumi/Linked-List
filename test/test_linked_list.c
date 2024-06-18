@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../linked_list.h"
 
 #define BUF_SIZE 64
@@ -454,6 +455,30 @@ test_split_list(void){
 }
 
 static void
+test_merge_lists_bug(){
+    linked_list *ll1, *ll2, *merged;
+    employee *emp,
+	e1 = { 1, "foo" };
+
+    ll1 = ll_init(employee_key_access, employee_key_match,
+		  employee_free);
+    ll2 = ll_init(employee_key_access, employee_key_match,
+		  employee_free);
+
+    ll_asc_insert(ll2, (void *) &e1);
+
+    merged = ll_merge(ll1, ll2);
+    assert(ll_get_length(merged) == 1);
+    emp = (employee *) merged->head->data;
+    assert(emp->id == 1);
+    assert(strncmp(emp->name, "foo", strlen("foo")) == 0);
+
+    ll_destroy(ll1);
+    ll_destroy(ll2);
+    ll_destroy(merged);
+}
+
+static void
 test_index_fetch(void){
     linked_list *ll;
     employee *iter,
@@ -820,6 +845,18 @@ run_bundled_tests(void){
 
     printf("<test merge>\n");
     test_merge_lists();
+
+    /* <bug fix>
+     *
+     * When either list is empty, merge failed
+     * and some junk data was inserted to the
+     * result list. The junk value was set
+     * at initization and not null, then
+     * it was inserted by ll_tail_insert()
+     * just after the break. Fixed.
+     */
+    printf("<reproduce bug>\n");
+    test_merge_lists_bug();
 
     printf("<test split>\n");
     test_split_list();
