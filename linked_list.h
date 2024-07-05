@@ -48,7 +48,7 @@ int ll_get_length(linked_list *ll);
 /* basic operations (insert, delete, search ... etc) */
 void ll_insert(linked_list *ll, void *p);
 void ll_tail_insert(linked_list *ll, void *p);
-void ll_asc_insert(linked_list *ll, void *p);
+int ll_asc_insert(linked_list *ll, void *p);
 void ll_index_insert(linked_list *ll, void *p, int index);
 void *ll_index_remove(linked_list *ll, int index);
 void *ll_remove_first_data(linked_list *ll);

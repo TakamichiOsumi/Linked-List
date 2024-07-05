@@ -455,13 +455,21 @@ ll_destroy(linked_list *ll){
     free(ll);
 }
 
-void
+/*
+ * Insert an entry in ascending order and return
+ * the index of inserted position.
+ *
+ * Return -1 on failure. The return value starts
+ * from 0 as the first index.
+ */
+int
 ll_asc_insert(linked_list *ll, void *new_data){
     node *new_node, *prev, *curr;
     bool found_larger_key = false;
+    int inserted_pos = 0;
 
     if (!ll)
-	return;
+	return -1;
 
     new_node = ll_gen_node(new_data);
 
@@ -469,7 +477,7 @@ ll_asc_insert(linked_list *ll, void *new_data){
     if (!ll->head){
 	ll->node_count++;
 	ll->head = new_node;
-	return;
+	return 0;
     }
 
     prev = curr = ll->head;
@@ -480,6 +488,7 @@ ll_asc_insert(linked_list *ll, void *new_data){
 	    break;
 	}
 	prev = curr;
+	inserted_pos++;
     } while((curr = curr->next) != NULL);
 
     if (found_larger_key == true){
@@ -509,6 +518,8 @@ ll_asc_insert(linked_list *ll, void *new_data){
 	ll->node_count++;
 	prev->next = new_node;
     }
+
+    return inserted_pos;
 }
 
 void

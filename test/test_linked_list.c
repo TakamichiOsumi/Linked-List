@@ -272,19 +272,21 @@ test_asc_order_insert(void){
 	e2 = { 2, "bar" },
 	e3 = { 3, "bazz" },
 	e4 = { 4, "xxxx" },
-	e5 = { 5, "yyyy" };
+	e5 = { 5, "yyyy" },
+	e6 = { 6, "aaaa" };
     uintptr_t expected_id = 0;
 
     ll = ll_init(employee_key_access, employee_key_match,
 		 employee_free);
 
-    ll_asc_insert(ll, (void *) &e2);
-    ll_asc_insert(ll, (void *) &e1);
-    ll_asc_insert(ll, (void *) &e0);
-    ll_asc_insert(ll, (void *) &e4);
-    ll_asc_insert(ll, (void *) &e5);
-    ll_asc_insert(ll, (void *) &e3);
-    assert(ll_get_length(ll) == 6);
+    assert(ll_asc_insert(ll, (void *) &e2) == 0);
+    assert(ll_asc_insert(ll, (void *) &e1) == 0);
+    assert(ll_asc_insert(ll, (void *) &e0) == 0);
+    assert(ll_asc_insert(ll, (void *) &e4) == 3);
+    assert(ll_asc_insert(ll, (void *) &e5) == 4);
+    assert(ll_asc_insert(ll, (void *) &e3) == 3);
+    assert(ll_asc_insert(ll, (void *) &e6) == 6);
+    assert(ll_get_length(ll) == 7);
 
     ll_begin_iter(ll);
     while((iter = (employee *) ll_get_iter_data(ll)) != NULL){
