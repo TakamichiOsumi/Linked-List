@@ -22,8 +22,11 @@ ll_gen_node(void *p){
 
 linked_list *
 ll_init(void *(*key_access_cb)(void *data),
-	int (*key_compare_cb)(void *data, void *key),
-	void (*free_cb)(void *data)){
+	int (*key_compare_cb)(void *key1,
+			      void *key2,
+			      void *key_compare_metadata),
+	void (*free_cb)(void *data),
+	void *keys_compare_metadata){
     linked_list *new_ll;
 
     if ((new_ll = (linked_list *) malloc(sizeof(linked_list))) == NULL){
@@ -33,12 +36,18 @@ ll_init(void *(*key_access_cb)(void *data),
 
     new_ll->node_count = 0;
     new_ll->head = NULL;
+
+    /* Set callbacks */
     new_ll->key_access_cb = key_access_cb;
     new_ll->key_compare_cb = key_compare_cb;
     new_ll->free_cb = free_cb;
 
+    /* Iteration control */
     new_ll->current_node = NULL;
     new_ll->iter_in_progress = false;
+
+    /* Set metadata for advanced keys comparsion */
+    new_ll->keys_compare_metadata = keys_compare_metadata;
 
     return new_ll;
 }
@@ -146,18 +155,20 @@ ll_ref_index_data(linked_list *ll, int index){
 }
 
 /* Don't remove the hit node from the list */
-void*
+void *
 ll_search_by_key(linked_list *ll, void *key){
     node *n;
+    void *parsed_key;
 
-    if (!ll || !ll->head || !key ||
-	!ll->key_access_cb || !ll->key_compare_cb)
+    if (!ll || !ll->head || !key || !ll->key_compare_cb)
 	return NULL;
 
     n = ll->head;
     while(n){
-	if (ll->key_compare_cb(ll->key_access_cb(n->data),
-			       key) == 0){
+	parsed_key = ll->key_access_cb == NULL ? n->data : ll->key_access_cb(n->data);
+
+	if (ll->key_compare_cb(parsed_key, key,
+			       ll->keys_compare_metadata) == 0){
 	    return n->data;
 	}
 	n = n->next;
@@ -170,16 +181,17 @@ void *
 ll_remove_by_key(linked_list *ll, void *key){
     bool found = false;
     node *prev, *cur;
-    void *p;
+    void *p, *parsed_key;
 
-    if (!ll || !key || !ll->head ||
-	!ll->key_access_cb || !ll->key_compare_cb)
+    if (!ll || !key || !ll->head || !ll->key_compare_cb)
 	return NULL;
 
     prev = cur = ll->head;
     while(cur){
-	if (ll->key_compare_cb(ll->key_access_cb(cur->data),
-			       key) == 0){
+	parsed_key = ll->key_access_cb == NULL ? cur->data : ll->key_access_cb(cur->data);
+
+	if (ll->key_compare_cb(parsed_key, key,
+			       ll->keys_compare_metadata) == 0){
 	    found = true;
 	    break;
 	}
@@ -216,15 +228,17 @@ ll_remove_by_key(linked_list *ll, void *key){
 void *
 ll_replace_by_key(linked_list *ll, void *old_key, void *new_data){
     node *curr;
+    void *parsed_key;
 
     if (ll == NULL || ll->head == NULL)
 	return NULL;
 
     curr = ll->head;
     while(true){
+	parsed_key = ll->key_access_cb == NULL ? curr->data : ll->key_access_cb(curr->data);
 
-	if (ll->key_compare_cb(old_key,
-			       ll->key_access_cb(curr->data)) == 0){
+	if (ll->key_compare_cb(parsed_key, old_key,
+			       ll->keys_compare_metadata) == 0){
 	    void *tmp = curr->data;
 
 	    curr->data = new_data;
@@ -300,7 +314,8 @@ ll_split(linked_list *ll, int no_nodes){
 
     new_list = ll_init(ll->key_access_cb,
 		       ll->key_compare_cb,
-		       ll->free_cb);
+		       ll->free_cb,
+		       ll->keys_compare_metadata);
 
     for (i = 0; i < no_nodes; i++){
 	p = ll_remove_first_data(ll);
@@ -318,6 +333,7 @@ ll_split(linked_list *ll, int no_nodes){
 linked_list *
 ll_merge(linked_list *ll1, linked_list *ll2){
     void *d1 = NULL, *d2 = NULL;
+    void *parsed_d1, *parsed_d2;
     linked_list *result;
     int cmp;
     bool d1_shift, d2_shift;
@@ -325,10 +341,12 @@ ll_merge(linked_list *ll1, linked_list *ll2){
     assert(ll1->key_access_cb == ll2->key_access_cb);
     assert(ll1->key_compare_cb == ll2->key_compare_cb);
     assert(ll1->free_cb == ll2->free_cb);
+    assert(ll1->keys_compare_metadata == ll2->keys_compare_metadata);
 
     result = ll_init(ll1->key_access_cb,
 		     ll1->key_compare_cb,
-		     ll1->free_cb);
+		     ll1->free_cb,
+		     ll1->keys_compare_metadata);
 
     /* Handle the cases of empty list */
     if (ll_get_length(ll1) == 0 && ll_get_length(ll2) == 0)
@@ -363,8 +381,13 @@ ll_merge(linked_list *ll1, linked_list *ll2){
 
 	d1_shift = d2_shift = false;
 
-	cmp = result->key_compare_cb(result->key_access_cb(d1),
-				     result->key_access_cb(d2));
+	/* Fetch keys */
+	parsed_d1 = result->key_access_cb == NULL ? d1 : result->key_access_cb(d1);
+	parsed_d2 = result->key_access_cb == NULL ? d2 : result->key_access_cb(d2);
+
+	cmp = result->key_compare_cb(parsed_d1,
+				     parsed_d2,
+				     result->keys_compare_metadata);
 
 	if (cmp == -1 || cmp == 0){
 	    /* d1 key < d2 key or those are equal */
@@ -465,6 +488,7 @@ ll_destroy(linked_list *ll){
 int
 ll_asc_insert(linked_list *ll, void *new_data){
     node *new_node, *prev, *curr;
+    void *parsed_key, *new_data_key;
     bool found_larger_key = false;
     int inserted_pos = 0;
 
@@ -482,8 +506,12 @@ ll_asc_insert(linked_list *ll, void *new_data){
 
     prev = curr = ll->head;
     do {
-	if (ll->key_compare_cb(ll->key_access_cb(curr->data),
-			       ll->key_access_cb(new_data)) == 1){
+	parsed_key = ll->key_access_cb == NULL ? curr->data : ll->key_access_cb(curr->data);
+	new_data_key = ll->key_access_cb == NULL ? new_node->data: ll->key_access_cb(new_node->data);
+
+	if (ll->key_compare_cb(parsed_key,
+			       new_data_key,
+			       ll->keys_compare_metadata) == 1){
 	    found_larger_key = true;
 	    break;
 	}
@@ -612,7 +640,7 @@ bool
 ll_has_key(linked_list *ll, void *key)
 {
     int i;
-    void *p;
+    void *p, *parsed_key;
 
     if (ll == NULL || ll->head == NULL)
 	return false;
@@ -620,8 +648,11 @@ ll_has_key(linked_list *ll, void *key)
     ll_begin_iter(ll);
     for (i = 0; i < ll_get_length(ll); i++){
 	p = ll_get_iter_data(ll);
-	if (ll->key_compare_cb(ll->key_access_cb(p),
-			       key) == 0){
+
+	parsed_key = ll->key_access_cb == NULL ? p : ll->key_access_cb(p);
+
+	if (ll->key_compare_cb(parsed_key, key,
+			       ll->keys_compare_metadata) == 0){
 	    ll_end_iter(ll);
 	    return true;
 	}

@@ -25,18 +25,27 @@ test_employee_id(employee *e, int expected){
     }
 }
 
-static void*
+/*
+ * Retrieve the key value from employee * object.
+ */
+static void *
 employee_key_access(void *data){
     employee *e;
 
     assert(data != NULL);
+
     e = (employee *) data;
 
     return (void *) e->id;
 }
 
+/*
+ * Simple comparison of two uintptr_t *.
+ *
+ * Ignore keys_compare_metadata.
+ */
 static int
-employee_key_match(void *key1, void *key2){
+employee_key_match(void *key1, void *key2, void *metadata){
     uintptr_t k1 = (uintptr_t) key1,
 	k2 = (uintptr_t) key2;
 
@@ -72,8 +81,9 @@ test_basic_operations(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_access, employee_key_match,
-		 employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free, NULL);
 
     assert(ll_is_empty(ll));
     ll_insert(ll, (void *) &e1);
@@ -115,7 +125,8 @@ test_get_first_operation(void){
     linked_list *ll;
 
     ll = ll_init(employee_key_access,
-		 employee_key_match, employee_free);
+		 employee_key_match,
+		 employee_free, NULL);
 
     assert(ll_is_empty(ll));
     ll_insert(ll, (void *) &e1);
@@ -144,8 +155,9 @@ test_clean_up_operation(void){
 	e5 = { 5, "yyy" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_access, employee_key_match,
-		 employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free, NULL);
 
     assert(ll_is_empty(ll));
 
@@ -178,8 +190,9 @@ test_iteration_operation(void){
 	e3 = { 3, "bazz" };
     linked_list *ll;
 
-    ll = ll_init(employee_key_access, employee_key_match,
-		 employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free, NULL);
 
     /* Test 1 : executing begin/end functions without any operation */
     ll_begin_iter(ll);
@@ -245,8 +258,10 @@ test_tail_insert(void){
 
     int expected_val = 1;
 
-    ll = ll_init(employee_key_access, employee_key_match,
-		 employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free, NULL);
+
     ll_tail_insert(ll, (void *) &e1);
     ll_tail_insert(ll, (void *) &e2);
     ll_tail_insert(ll, (void *) &e3);
@@ -276,8 +291,9 @@ test_asc_order_insert(void){
 	e6 = { 6, "aaaa" };
     uintptr_t expected_id = 0;
 
-    ll = ll_init(employee_key_access, employee_key_match,
-		 employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free, NULL);
 
     assert(ll_asc_insert(ll, (void *) &e2) == 0);
     assert(ll_asc_insert(ll, (void *) &e1) == 0);
@@ -311,8 +327,9 @@ test_asc_order_insert_v2(void){
 	e4 = { 4, "xxxx" };
     uintptr_t expected_id = 1;
 
-    ll = ll_init(employee_key_access, employee_key_match,
-		 employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match,
+		 employee_free, NULL);
 
     ll_asc_insert(ll, (void *) &e4);
     ll_asc_insert(ll, (void *) &e1);
@@ -333,6 +350,33 @@ test_asc_order_insert_v2(void){
     ll_destroy(ll);
 }
 
+/*
+ * Tests for ll_asc_insert() in test_asc_order_insert() and
+ * test_asc_order_insert_v2() handles employe objects that
+ * contain key value in its object.
+ *
+ * Test the case user wants to store simple integer values ?
+ * Set key_access_cb to NULL in this case.
+ */
+static void
+test_asc_order_insert_v3(void){
+    linked_list *ll;
+    uintptr_t i;
+
+    /*
+     * The 'employee_key_match' callback can be used for
+     * simple integer comparions also.
+     */
+    ll = ll_init(NULL, employee_key_match, NULL, NULL);
+
+    for (i = 1; i <= 10; i++){
+	assert(ll_asc_insert(ll, (void *) i) == (i - 1));
+	assert(ll_search_by_key(ll, (void *) i) != NULL);
+    }
+
+    ll_destroy(ll);
+}
+
 static void
 test_merge_lists(void){
     linked_list *ll1, *ll2, *merged1, *merged2;
@@ -348,10 +392,10 @@ test_merge_lists(void){
 	e8 = { 8, "xyzz" };
     uintptr_t expected_id = 0;
 
-    ll1 = ll_init(employee_key_access, employee_key_match,
-		  employee_free);
-    ll2 = ll_init(employee_key_access, employee_key_match,
-		  employee_free);
+    ll1 = ll_init(employee_key_access,
+		  employee_key_match, employee_free, NULL);
+    ll2 = ll_init(employee_key_access,
+		  employee_key_match, employee_free, NULL);
 
     ll_asc_insert(ll1, (void *) &e0);
     ll_asc_insert(ll1, (void *) &e1);
@@ -417,8 +461,9 @@ test_split_list(void){
     uintptr_t expected_id = 0;
     int split_no = 3;
 
-    ll1 = ll_init(employee_key_access, employee_key_match,
-		  employee_free);
+    ll1 = ll_init(employee_key_access,
+		  employee_key_match,
+		  employee_free, NULL);
 
     ll_asc_insert(ll1, (void *) &e0);
     ll_asc_insert(ll1, (void *) &e1);
@@ -462,10 +507,10 @@ test_merge_lists_bug(){
     employee *emp,
 	e1 = { 1, "foo" };
 
-    ll1 = ll_init(employee_key_access, employee_key_match,
-		  employee_free);
-    ll2 = ll_init(employee_key_access, employee_key_match,
-		  employee_free);
+    ll1 = ll_init(employee_key_access,
+		  employee_key_match, employee_free, NULL);
+    ll2 = ll_init(employee_key_access,
+		  employee_key_match, employee_free, NULL);
 
     ll_asc_insert(ll2, (void *) &e1);
 
@@ -491,8 +536,8 @@ test_index_fetch(void){
 	e4 = { 4, "xxxx" };
     int i;
 
-    ll = ll_init(employee_key_access, employee_key_match,
-		 employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match, employee_free, NULL);
 
     ll_asc_insert(ll, (void *) &e0);
     ll_asc_insert(ll, (void *) &e1);
@@ -526,8 +571,8 @@ test_null_node_iteration(void){
 	e4 = { 4, "xxxx" };
     int i;
 
-    ll = ll_init(employee_key_access, employee_key_match,
-		 employee_free);
+    ll = ll_init(employee_key_access,
+		 employee_key_match, employee_free, NULL);
 
     ll_tail_insert(ll, (void *) &e0);
     ll_tail_insert(ll, (void *) NULL);
@@ -583,7 +628,7 @@ test_index_insertion(void){
 
     ll = ll_init(employee_key_access,
 		 employee_key_match,
-		 employee_free);
+		 employee_free, NULL);
 
     ll_asc_insert(ll, (void *) &e0);
     ll_asc_insert(ll, (void *) &e1);
@@ -623,8 +668,7 @@ test_for_loop_iter(){
     int i, non_null;
 
     ll = ll_init(employee_key_access,
-		 employee_key_match,
-		 employee_free);
+		 employee_key_match, employee_free, NULL);
 
     ll_insert(ll, NULL);
     ll_insert(ll, (void *) &e0);
@@ -663,8 +707,7 @@ test_tail_remove(void){
 	e4 = { 4, "xxxx" };
 
     ll = ll_init(employee_key_access,
-		 employee_key_match,
-		 employee_free);
+		 employee_key_match, employee_free, NULL);
 
     /* ll_tail_remove() for no data returns NULL */
     assert(ll_tail_remove(ll) == NULL);
@@ -707,8 +750,7 @@ test_key_replacement(void){
     int i;
 
     ll = ll_init(employee_key_access,
-		 employee_key_match,
-		 employee_free);
+		 employee_key_match, employee_free, NULL);
 
     ll_tail_insert(ll, (void *) &e0);
     ll_tail_insert(ll, (void *) &e1);
@@ -754,8 +796,7 @@ test_index_removal(void){
     int i;
 
     ll = ll_init(employee_key_access,
-		 employee_key_match,
-		 employee_free);
+		 employee_key_match, employee_free, NULL);
 
     ll_tail_insert(ll, (void *) &e0); /* will be removed */
     ll_tail_insert(ll, (void *) &e1);
@@ -809,8 +850,8 @@ test_key_existence(void){
 	e2 = { 2, "bar" };
 
     ll = ll_init(employee_key_access,
-		 employee_key_match,
-		 employee_free);
+		 employee_key_match, employee_free, NULL);
+
     ll_tail_insert(ll, (void *) &e0);
     ll_tail_insert(ll, (void *) &e1);
     ll_tail_insert(ll, (void *) &e2);
@@ -845,16 +886,18 @@ run_bundled_tests(void){
     printf("<test ascending order insert v2>\n");
     test_asc_order_insert_v2();
 
+    printf("<test ascending order insert v3>\n");
+    test_asc_order_insert_v3();
+
     printf("<test merge>\n");
     test_merge_lists();
 
     /* <bug fix>
      *
-     * When either list is empty, merge failed
-     * and some junk data was inserted to the
-     * result list. The junk value was set
-     * at initization and not null, then
-     * it was inserted by ll_tail_insert()
+     * When either list is empty, merge failed and
+     * some junk data was inserted to the result list.
+     * The junk value was set at initization and not
+     * null, then it was inserted by ll_tail_insert()
      * just after the break. Fixed.
      */
     printf("<reproduce bug>\n");
