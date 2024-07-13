@@ -1,6 +1,6 @@
 # Linked-List
 
-Submodule utility for my other repositories.
+Create and manage dynamic and linear collection of data.
 
 ## `liblinked_list` library functions
 
@@ -21,3 +21,5 @@ See more explicit and other function prototypes in linked_list.h
 ## Notes
 
 Expect the caller of this linked list is only one and not referenced from multiple entities (such as process or threads).
+
+This library is written as a submodule utility for my other repositories.
