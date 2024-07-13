@@ -1,4 +1,5 @@
-# Linked-List library
+# Linked-List
+
 Submodule utility for my other repositories.
 
 ## `liblinked_list` library functions
