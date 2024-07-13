@@ -338,6 +338,7 @@ ll_merge(linked_list *ll1, linked_list *ll2){
     int cmp;
     bool d1_shift, d2_shift;
 
+    /* Are the two lists joinable ? */
     assert(ll1->key_access_cb == ll2->key_access_cb);
     assert(ll1->key_compare_cb == ll2->key_compare_cb);
     assert(ll1->free_cb == ll2->free_cb);
